@@ -1,1 +1,1 @@
-A = "Hi. Test zum Synchronieren mit Github ~Oliver, Andrej, Marc";
+A = "Hi. Test zum Synchronieren mit Github ~Oliver, Andrej, Marc, till";
