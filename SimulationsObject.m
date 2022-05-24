@@ -1,4 +1,4 @@
-classdef SimulationsObject
+classdef SimulationsObject < handle
 	properties
         pos=[0,0];
         name="";
