@@ -3,7 +3,7 @@
 deact_dur=[0,0,35.5e-6,.5e-3,5e-3,.5];% Deactivation Duration for each sleep mode
 act_dur=[0,0,35.5e-6,.5e-3,5e-3,.5]; % Activation Duration for each sleep mode
 pow_cons=[250,109,52.3,14.3,9.51]; % Power Consumption for each sleep mode
-timestep = 5e-3; % Festgelegter Zeitschritt
+timestep = 35.5e-6; % Festgelegter Zeitschritt
 step = 1; % Aktueller Schritt
 timesteps = 1000; % Nummer an Zeitschritten die durchgeführt werden sollen.
 num_Cos=5; % Nummer von Consumer
