@@ -1,4 +1,4 @@
-classdef visualization < matlab.apps.AppBase
+classdef visualization_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
@@ -13,13 +13,14 @@ classdef visualization < matlab.apps.AppBase
         Image                           matlab.ui.control.Image
         Label                           matlab.ui.control.Label
         Label2                          matlab.ui.control.Label
+        Button                          matlab.ui.control.Button
         RightPanel                      matlab.ui.container.Panel
-        UIAxes                          matlab.ui.control.UIAxes
         SimulatedtimeLabel              matlab.ui.control.Label
         LastactionsTextAreaLabel        matlab.ui.control.Label
         LastactionsTextArea             matlab.ui.control.TextArea
         EditField                       matlab.ui.control.NumericEditField
         placeholderLabel                matlab.ui.control.Label
+        Panel                           matlab.ui.container.Panel
     end
 
     % Properties that correspond to apps with auto-reflow
@@ -27,8 +28,66 @@ classdef visualization < matlab.apps.AppBase
         onePanelWidth = 576;
     end
 
+    
+    methods (Access = private)
+        
+    % Value changed function: DropDown
+    function DropDownValueChanged(app, event)
+        value = app.DropDown.Value;
+        %If Panel 1 is selected, show panel 1
+        if strcmp(value,'Plotting Test')
+            %% Map initialization
+            karte = Map(500,500,1000,100);
+            
+            %% Start App
+            visualization;
+            
+            app.UIAxes.XLimMode = 'manual';
+            app.UIAxes.XLim = [0,karte.map_size(1)];
+            app.UIAxes.YLim = [0,karte.map_size(2)];
+            
+            %% Plotting-Test
+            plotCU(Cu1,app.UIAxes);
+            %Bs1 = BaseStation(100,300,'BS1',mode);
+
+        elseif strcmp(value,'Panel 2')
+            app.Panel2.Visible = 'on';
+        elseif strcmp(value,'Panel 3')
+            app.Panel3.Visible = 'on';
+        end
+    end
+    end
+    
+
     % Callbacks that handle component events
     methods (Access = private)
+
+        % Button pushed function: Button
+        function ButtonPushed(app, event)
+            geoaxes(app.Panel);
+        end
+
+        % Value changed function: SelectSceneDropDown
+        function SelectSceneDropDownValueChanged(app, event)
+            value = app.SelectSceneDropDown.Value;
+            if (value == '2' )
+                latAachen = 50.775555;
+                lonAachen = 6.083611;
+                latKoeln = 50.935173;
+                lonKoeln = 6.953101;
+                geoplot(gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
+                geobasemap(gx,'streets-light')
+                hold(gx,'on')
+            elseif (value == '3' )
+                latAachen = 50.755555;
+                lonAachen = 6.083611;
+                latKoeln = 50.935173;
+                lonKoeln = 6.953101;
+                geoplot(gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
+                geobasemap(gx,'streets-light')
+                hold(gx,'on')
+            end
+        end
 
         % Changes arrangement of the app based on UIFigure width
         function updateAppLayout(app, event)
@@ -90,7 +149,11 @@ classdef visualization < matlab.apps.AppBase
 
             % Create SelectSceneDropDown
             app.SelectSceneDropDown = uidropdown(app.LeftPanel);
+            app.SelectSceneDropDown.Items = {'Nothing', 'Plot-Test1', 'Plot-Test2'};
+            app.SelectSceneDropDown.ItemsData = {'1', '2', '3'};
+            app.SelectSceneDropDown.ValueChangedFcn = createCallbackFcn(app, @SelectSceneDropDownValueChanged, true);
             app.SelectSceneDropDown.Position = [102 618 100 22];
+            app.SelectSceneDropDown.Value = '1';
 
             % Create StartStopSimulationSwitchLabel
             app.StartStopSimulationSwitchLabel = uilabel(app.LeftPanel);
@@ -120,17 +183,15 @@ classdef visualization < matlab.apps.AppBase
             app.Label2.Position = [14 37 203 42];
             app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
 
+            % Create Button
+            app.Button = uibutton(app.LeftPanel, 'push');
+            app.Button.ButtonPushedFcn = createCallbackFcn(app, @ButtonPushed, true);
+            app.Button.Position = [46 455 100 22];
+
             % Create RightPanel
             app.RightPanel = uipanel(app.GridLayout);
             app.RightPanel.Layout.Row = 1;
             app.RightPanel.Layout.Column = 2;
-
-            % Create UIAxes
-            app.UIAxes = uiaxes(app.RightPanel);
-            title(app.UIAxes, 'City - Map')
-            xlabel(app.UIAxes, 'X')
-            ylabel(app.UIAxes, 'Y')
-            app.UIAxes.Position = [1 186 735 514];
 
             % Create SimulatedtimeLabel
             app.SimulatedtimeLabel = uilabel(app.RightPanel);
@@ -152,12 +213,17 @@ classdef visualization < matlab.apps.AppBase
             app.EditField = uieditfield(app.RightPanel, 'numeric');
             app.EditField.ValueDisplayFormat = '%11.4g ns';
             app.EditField.Editable = 'off';
-            app.EditField.Position = [10 130 108 22];
+            app.EditField.Position = [10 130 88 22];
 
             % Create placeholderLabel
             app.placeholderLabel = uilabel(app.RightPanel);
             app.placeholderLabel.Position = [10 78 68 22];
             app.placeholderLabel.Text = 'placeholder';
+
+            % Create Panel
+            app.Panel = uipanel(app.RightPanel);
+            app.Panel.Title = 'Panel';
+            app.Panel.Position = [10 183 726 504];
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
@@ -168,7 +234,7 @@ classdef visualization < matlab.apps.AppBase
     methods (Access = public)
 
         % Construct app
-        function app = visualization
+        function app = visualization_exported
 
             % Create UIFigure and components
             createComponents(app)

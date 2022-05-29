@@ -26,7 +26,7 @@ classdef Consumer < SimulationsObject
         end
   %% Plotting function    
         function plotCU(obj,axis)
-            xy = obj.position();
+            xy = obj.pos;
             plot(axis,xy(1), xy(2), 'kx');
         end
  %% find the nearest base station  

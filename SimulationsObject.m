@@ -1,5 +1,5 @@
 classdef SimulationsObject < handle
-	properties
+	properties (GetAccess=public)
         pos=[0,0];
         name="";
     end
@@ -14,12 +14,9 @@ classdef SimulationsObject < handle
             obj.pos=[x,y];
             obj.name=s;
         end
-    end
-    
-    methods(Static)
-        %% Return position
-        function xy = position()
-            xy=pos;
-        end
+%         %% Return position
+%         function xy = position(obj)
+%             xy= obj.pos;
+%         end
     end
 end
