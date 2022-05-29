@@ -14,6 +14,12 @@ classdef SimulationsObject < handle
             obj.pos=[x,y];
             obj.name=s;
         end
-
+    end
+    
+    methods(Static)
+        %% Return position
+        function xy = position()
+            xy=pos;
+        end
     end
 end

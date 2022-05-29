@@ -24,6 +24,11 @@ classdef Consumer < SimulationsObject
         function obj=setSpeed(obj,vx,vy)
             obj.v=[vx,vy];
         end
+  %% Plotting function    
+        function plotCU(obj,axis)
+            xy = obj.position();
+            plot(axis,xy(1), xy(2), 'kx');
+        end
  %% find the nearest base station  
  % Q: Ignore the capacity of base stations?
  % Q: Or should we also try to allocate the channel capacity?
