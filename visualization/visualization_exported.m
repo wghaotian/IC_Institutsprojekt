@@ -70,7 +70,9 @@ classdef visualization_exported < matlab.apps.AppBase
         % Button pushed function: StartAppButton
         function StartAppButtonPushed(app, event)
             if (app.countStart ~= 0)
-                cla(app.gx);
+                f = cla(app.gx,'reset');
+                f.Children;
+                app.LastactionsTextArea.Value = app.LastactionsTextArea.Value + "Panel cleared";
             end
             app.gx = geoaxes(app.Panel);
             geobasemap(app.gx,'streets-light')
@@ -235,8 +237,8 @@ classdef visualization_exported < matlab.apps.AppBase
 
             % Create placeholderLabel
             app.placeholderLabel = uilabel(app.RightPanel);
-            app.placeholderLabel.Position = [10 78 68 22];
-            app.placeholderLabel.Text = 'placeholder';
+            app.placeholderLabel.Position = [10 14 341 98];
+            app.placeholderLabel.Text = {'Bekannte Bugs:'; '1.'; 'Wenn man erneut auf Start App drückt funktioniert das'; 'clearen nicht ganz. Karte ist hinter der alten noch da.'; '2.'; 'Nach jeder Aktion sollte eigentlich ein Zeilensprung '; 'stattfinden'};
 
             % Create Panel
             app.Panel = uipanel(app.RightPanel);
