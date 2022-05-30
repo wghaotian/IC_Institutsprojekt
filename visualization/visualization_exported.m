@@ -69,7 +69,9 @@ classdef visualization_exported < matlab.apps.AppBase
 
         % Button pushed function: StartAppButton
         function StartAppButtonPushed(app, event)
-            cla(app.gx);
+            if (app.countStart ~= 0)
+                cla(app.gx);
+            end
             app.gx = geoaxes(app.Panel);
             geobasemap(app.gx,'streets-light')
             hold(app.gx,'on')
@@ -78,11 +80,10 @@ classdef visualization_exported < matlab.apps.AppBase
 
         % Value changed function: SelectSceneDropDown
         function SelectSceneDropDownValueChanged(app, event)
+            value = app.SelectSceneDropDown.Value;
             if (app.countStart == 0)
                 app.LastactionsTextArea.Value = app.LastactionsTextArea.Value + "Drücke zuerst auf den Start Knopf!";
-            end
-            value = app.SelectSceneDropDown.Value;
-            if (value == '2' )
+            elseif (value == '2' )
                 latAachen = 50.775555;
                 lonAachen = 6.083611;
                 latKoeln = 50.935173;
@@ -94,6 +95,14 @@ classdef visualization_exported < matlab.apps.AppBase
                 latKoeln = 50.935173;
                 lonKoeln = 6.953101;
                 geoplot(app.gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
+            elseif (value == '4' )
+                latAachen = 50.775555;
+                lonAachen = 6.083611;
+                %annotation(app.gx,'textarrow',[latAachen latAachen-0.002],[latAachen latAachen],'String','Aachen');
+                text(app.gx,latAachen,lonAachen,'\leftarrow Aachen');
+                latKoeln = 50.935173;
+                lonKoeln = 6.953101;
+                text(app.gx,latKoeln,lonKoeln,'\leftarrow Koeln');
             end
         end
 
@@ -157,8 +166,8 @@ classdef visualization_exported < matlab.apps.AppBase
 
             % Create SelectSceneDropDown
             app.SelectSceneDropDown = uidropdown(app.LeftPanel);
-            app.SelectSceneDropDown.Items = {'Nothing', 'Plot-Test1', 'Plot-Test2'};
-            app.SelectSceneDropDown.ItemsData = {'1', '2', '3'};
+            app.SelectSceneDropDown.Items = {'Nothing', 'AC-Mitte -> Köln', 'AC-Süd -> Köln', 'Label Citys'};
+            app.SelectSceneDropDown.ItemsData = {'1', '2', '3', '4'};
             app.SelectSceneDropDown.ValueChangedFcn = createCallbackFcn(app, @SelectSceneDropDownValueChanged, true);
             app.SelectSceneDropDown.Position = [106 582 100 22];
             app.SelectSceneDropDown.Value = '1';

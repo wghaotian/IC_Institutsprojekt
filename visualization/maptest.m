@@ -1,3 +1,5 @@
+%% Run to start GUI
+
 % gx = geoaxes;
 % latAachen = 50.775555;
 % lonAachen = 6.083611;
