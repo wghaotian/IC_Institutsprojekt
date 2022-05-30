@@ -13,7 +13,7 @@ classdef visualization_exported < matlab.apps.AppBase
         Image                           matlab.ui.control.Image
         Label                           matlab.ui.control.Label
         Label2                          matlab.ui.control.Label
-        Button                          matlab.ui.control.Button
+        StartAppButton                  matlab.ui.control.Button
         RightPanel                      matlab.ui.container.Panel
         SimulatedtimeLabel              matlab.ui.control.Label
         LastactionsTextAreaLabel        matlab.ui.control.Label
@@ -28,6 +28,11 @@ classdef visualization_exported < matlab.apps.AppBase
         onePanelWidth = 576;
     end
 
+    
+    properties (Access = public)
+        gx;
+        countStart = 0;
+    end
     
     methods (Access = private)
         
@@ -62,30 +67,33 @@ classdef visualization_exported < matlab.apps.AppBase
     % Callbacks that handle component events
     methods (Access = private)
 
-        % Button pushed function: Button
-        function ButtonPushed(app, event)
-            geoaxes(app.Panel);
+        % Button pushed function: StartAppButton
+        function StartAppButtonPushed(app, event)
+            cla(app.gx);
+            app.gx = geoaxes(app.Panel);
+            geobasemap(app.gx,'streets-light')
+            hold(app.gx,'on')
+            app.countStart = app.countStart +1 ;
         end
 
         % Value changed function: SelectSceneDropDown
         function SelectSceneDropDownValueChanged(app, event)
+            if (app.countStart == 0)
+                app.LastactionsTextArea.Value = app.LastactionsTextArea.Value + "Drücke zuerst auf den Start Knopf!";
+            end
             value = app.SelectSceneDropDown.Value;
             if (value == '2' )
                 latAachen = 50.775555;
                 lonAachen = 6.083611;
                 latKoeln = 50.935173;
                 lonKoeln = 6.953101;
-                geoplot(gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
-                geobasemap(gx,'streets-light')
-                hold(gx,'on')
+                geoplot(app.gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
             elseif (value == '3' )
                 latAachen = 50.755555;
                 lonAachen = 6.083611;
                 latKoeln = 50.935173;
                 lonKoeln = 6.953101;
-                geoplot(gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
-                geobasemap(gx,'streets-light')
-                hold(gx,'on')
+                geoplot(app.gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
             end
         end
 
@@ -144,7 +152,7 @@ classdef visualization_exported < matlab.apps.AppBase
             % Create SelectSceneLabel
             app.SelectSceneLabel = uilabel(app.LeftPanel);
             app.SelectSceneLabel.HorizontalAlignment = 'right';
-            app.SelectSceneLabel.Position = [7 618 80 22];
+            app.SelectSceneLabel.Position = [11 582 80 22];
             app.SelectSceneLabel.Text = 'Select Scene:';
 
             % Create SelectSceneDropDown
@@ -152,18 +160,18 @@ classdef visualization_exported < matlab.apps.AppBase
             app.SelectSceneDropDown.Items = {'Nothing', 'Plot-Test1', 'Plot-Test2'};
             app.SelectSceneDropDown.ItemsData = {'1', '2', '3'};
             app.SelectSceneDropDown.ValueChangedFcn = createCallbackFcn(app, @SelectSceneDropDownValueChanged, true);
-            app.SelectSceneDropDown.Position = [102 618 100 22];
+            app.SelectSceneDropDown.Position = [106 582 100 22];
             app.SelectSceneDropDown.Value = '1';
 
             % Create StartStopSimulationSwitchLabel
             app.StartStopSimulationSwitchLabel = uilabel(app.LeftPanel);
             app.StartStopSimulationSwitchLabel.HorizontalAlignment = 'center';
-            app.StartStopSimulationSwitchLabel.Position = [19 581 66 28];
+            app.StartStopSimulationSwitchLabel.Position = [23 545 66 28];
             app.StartStopSimulationSwitchLabel.Text = {'Start / Stop'; 'Simulation'};
 
             % Create StartStopSimulationSwitch
             app.StartStopSimulationSwitch = uiswitch(app.LeftPanel, 'slider');
-            app.StartStopSimulationSwitch.Position = [129 585 45 20];
+            app.StartStopSimulationSwitch.Position = [133 549 45 20];
 
             % Create Image
             app.Image = uiimage(app.LeftPanel);
@@ -183,10 +191,11 @@ classdef visualization_exported < matlab.apps.AppBase
             app.Label2.Position = [14 37 203 42];
             app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
 
-            % Create Button
-            app.Button = uibutton(app.LeftPanel, 'push');
-            app.Button.ButtonPushedFcn = createCallbackFcn(app, @ButtonPushed, true);
-            app.Button.Position = [46 455 100 22];
+            % Create StartAppButton
+            app.StartAppButton = uibutton(app.LeftPanel, 'push');
+            app.StartAppButton.ButtonPushedFcn = createCallbackFcn(app, @StartAppButtonPushed, true);
+            app.StartAppButton.Position = [66 625 100 22];
+            app.StartAppButton.Text = 'Start App';
 
             % Create RightPanel
             app.RightPanel = uipanel(app.GridLayout);
