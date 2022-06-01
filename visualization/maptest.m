@@ -8,4 +8,4 @@
 % geoplot(gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
 % geobasemap(gx,'topographic')
 
-visualization;
+visualization2;
