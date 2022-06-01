@@ -37,9 +37,6 @@ classdef Map
         end
         
         function obj = add_CS(obj)% Add 1 random consumer
-            % Question: Should consumers' arrival be equally distributed or
-            % otherwise (i.e. normal, lognormal, etc.) distributed???
-            % Gleichverteilung finde ich ein bisschen sinnlos... 
             x=rand()*obj.map_size(1);
             y=rand()*obj.map_size(2);
             nameCS=['CS ',num2str(size(obj.CS_List,2)+1)];

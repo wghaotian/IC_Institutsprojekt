@@ -30,8 +30,8 @@ classdef Consumer < SimulationsObject
             plot(axis,xy(1), xy(2),'r.');
         end
  %% find the nearest base station  
- % Q: Ignore the capacity of base stations?
- % Q: Or should we also try to allocate the channel capacity?
+ % Q: Ignore the capacity of base stations? Yes
+ % Q: Or should we also try to allocate the channel capacity? No
         function [index,minBS]=nearestBS(obj, BS_List)
            min_dist=inf;
            index=1;
