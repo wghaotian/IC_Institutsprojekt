@@ -33,7 +33,11 @@ classdef Consumer < SimulationsObject
            minBS=BS_List(index);
         end
         
-
+  %% Plotting function    
+        function plotCU(obj,axis)
+            xy = obj.pos;
+            plot(axis,xy(1), xy(2), 'kx');
+        end
         
 %% Data Request 
         function Arrive(obj,time)
