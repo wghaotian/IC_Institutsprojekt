@@ -1,6 +1,8 @@
 classdef BaseStation < SimulationsObject
    properties
        sleepMode
+       serveList
+       bufferList
    end
    methods
        %% Constructor
@@ -11,6 +13,16 @@ classdef BaseStation < SimulationsObject
        %% Set Sleep
        function BS=setSleep(BS,SM)
            BS.sleepMode=SM;
+       end
+       %% Serve
+       function BS=serveCS(BS,CS_ind)
+           if (BS.sleepMode==0||BS.sleepMode==1)
+               BS.serveList=[BS.serveList,CS_ind];
+               BS.sleepMode=0;
+           else
+               BS.bufferList=[BS.bufferList,CS_ind];            
+               
+           end
        end
        
    end
