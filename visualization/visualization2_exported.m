@@ -76,7 +76,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             if (app.countStart ~= 0)
                 f = cla(app.gx,'reset');
                 f.Children;
-                app.LastactionsTextArea.Value = app.LastactionsTextArea.Value + "Panel cleared";
+                app.LastactionsTextArea.Value = "Panel cleared" + newline + app.LastactionsTextArea.Value;
             end
             app.gx = geoaxes(app.Panel);
             geobasemap(app.gx,'streets-light')
@@ -88,7 +88,7 @@ classdef visualization2_exported < matlab.apps.AppBase
         function SelectSceneDropDownValueChanged(app, event)
             value = app.SelectSceneDropDown.Value;
             if (app.countStart == 0)
-                app.LastactionsTextArea.Value = app.LastactionsTextArea.Value + "Drücke zuerst auf den Start Knopf!";
+                app.LastactionsTextArea.Value = "Drücke zuerst auf den Start Knopf!" + newline + app.LastactionsTextArea.Value;
             elseif (value == '2' )
                 latAachen = 50.775555;
                 lonAachen = 6.083611;
@@ -116,7 +116,7 @@ classdef visualization2_exported < matlab.apps.AppBase
         function SelectSceneDropDown_2ValueChanged(app, event)
             value = app.SelectSceneDropDown_2.Value;
             if (app.countStart == 0)
-                app.LastactionsTextArea.Value = app.LastactionsTextArea.Value + "Drücke zuerst auf den Start Knopf!";
+                app.LastactionsTextArea.Value = "Drücke zuerst auf den Start Knopf!" + newline + app.LastactionsTextArea.Value;
             elseif (value == '2' )
                 latAachen = 50.0;
                 lonAachen = 6.0;
@@ -131,7 +131,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             if (app.countStart ~= 0)
                 f = cla(app.gx,'reset');
                 f.Children;
-                app.LastactionsTextArea.Value = app.LastactionsTextArea.Value + "Panel cleared";
+                app.LastactionsTextArea.Value = "Panel cleared" + newline + app.LastactionsTextArea.Value;
             end
             app.gx = app.UIAxes;
             hold(app.gx,'on')
@@ -287,8 +287,8 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create placeholderLabel
             app.placeholderLabel = uilabel(app.RightPanel);
-            app.placeholderLabel.Position = [10 14 341 98];
-            app.placeholderLabel.Text = {'Bekannte Bugs:'; '1.'; 'Wenn man erneut auf Start App drückt funktioniert das'; 'clearen nicht ganz. Karte ist hinter der alten noch da.'; '2.'; 'Nach jeder Aktion sollte eigentlich ein Zeilensprung '; 'stattfinden'};
+            app.placeholderLabel.Position = [10 14 342 98];
+            app.placeholderLabel.Text = {'Bekannte Bugs:'; '1.'; 'Nach jeder Aktion sollte eigentlich ein Zeilensprung '; 'stattfinden'};
 
             % Create Panel
             app.Panel = uipanel(app.RightPanel);
@@ -300,7 +300,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             title(app.UIAxes, 'Title')
             xlabel(app.UIAxes, 'X')
             ylabel(app.UIAxes, 'Y')
-            app.UIAxes.Position = [113 143 347 278];
+            app.UIAxes.Position = [1 -1 725 483];
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
