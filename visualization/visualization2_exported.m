@@ -34,6 +34,8 @@ classdef visualization2_exported < matlab.apps.AppBase
     properties (Access = public)
         map;
         countStart = 0;
+        plottedCUs = 0;
+        plottedCUList;
     end
     
 %     % Value changed function: DropDown
@@ -69,14 +71,15 @@ classdef visualization2_exported < matlab.apps.AppBase
         % Button pushed function: StartTestAppButton
         function StartTestAppButtonPushed(app, event)
             if (app.countStart ~= 0)
-                f = cla(app.gx,'reset');
-                f.Children;
+                cla(app.UIAxes);
+                app.countStart = 0;
                 app.LastactionsTextArea.Value = "Panel cleared" + newline + app.LastactionsTextArea.Value;
             end
 %             app.gx = geoaxes(app.Panel);
 %             geobasemap(app.gx,'streets-light')
 %             hold(app.gx,'on')
             app.countStart = app.countStart +1 ;
+            hold(app.UIAxes,'on');
         end
 
         % Value changed function: TestSceneDropDown
@@ -87,21 +90,39 @@ classdef visualization2_exported < matlab.apps.AppBase
             elseif (value == '2' )
                 % Add background
                 imshow('map_background.png','Parent',app.UIAxes);
+                app.LastactionsTextArea.Value = "Background added." + newline + app.LastactionsTextArea.Value;
             elseif (value == '3' )
                 % Add map
                 app.map = Map(1200,750,10000);
                 app.UIAxes.XLimMode = 'manual';
                 app.UIAxes.XLim = [0,app.map.map_size(1)];
                 app.UIAxes.YLim = [0,app.map.map_size(2)];
+                app.LastactionsTextArea.Value = "Map with the size: [" + app.map.map_size(1) + "," + app.map.map_size(2) + "] has been created." + newline + app.LastactionsTextArea.Value;
             elseif (value == '4' )
                 % Add BS
-                app.map.add_BS([400,250]);
+                app.map = app.map.add_BS([400,250]);
+%                 Funktioniert noch nicht daher darunter manuell
+                app.map.BS_List(1).plotBS(app.UIAxes);
+%                 plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
+                app.LastactionsTextArea.Value = "Basestation at the position [400,250] has been created." + newline + app.LastactionsTextArea.Value;
             elseif (value == '5' )
                 % Add CU
-                app.map.add_CS;
+%                 Funktioniert noch nicht daher darunter manuell
+%                 app.map.add_CS;
+                app.plottedCUs = app.plottedCUs + 1;
+                app.plottedCUList = [app.plottedCUList plot(app.UIAxes,350, 500,'bo','MarkerSize',8)];
+                app.LastactionsTextArea.Value = "Customer at the position [350,500] has been created." + newline + app.LastactionsTextArea.Value;
             elseif (value == '6' )
                 % Remove CU
-                
+                delete(app.plottedCUList(app.plottedCUs));
+                app.LastactionsTextArea.Value = "Customer at the position [350,500] has been removed." + newline + app.LastactionsTextArea.Value;
+            elseif (value == '7' )
+                % Remove Background
+                axesHandlesToChildObjects = findobj(app.UIAxes, 'Type', 'image');
+                if ~isempty(axesHandlesToChildObjects)
+                  delete(axesHandlesToChildObjects);
+                  app.LastactionsTextArea.Value = "Background removed." + newline + app.LastactionsTextArea.Value;
+                end
             end
 %             elseif (value == '2' )
 %                 latAachen = 50.775555;
@@ -158,10 +179,12 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.StartTestAppButton.Visible = 1;
                 app.TestSceneDropDown.Visible = 1;
                 app.TestSceneDropDownLabel.Visible = 1;
+                app.placeholderLabel.Visible = 1;
             elseif (value == 0)
                 app.StartTestAppButton.Visible = 0;
                 app.TestSceneDropDown.Visible = 0;
                 app.TestSceneDropDownLabel.Visible = 0;
+                app.placeholderLabel.Visible = 0;
             end
         end
 
@@ -238,8 +261,8 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create TestSceneDropDown
             app.TestSceneDropDown = uidropdown(app.LeftPanel);
-            app.TestSceneDropDown.Items = {'Nothing', 'Add Background', 'Add Map', 'Add BS', 'Add CU', 'Remove CU'};
-            app.TestSceneDropDown.ItemsData = {'1', '2', '3', '4', '5', '6'};
+            app.TestSceneDropDown.Items = {'Nothing', 'Add Background', 'Add Map', 'Add BS', 'Add CU', 'Remove CU', 'Remove Background'};
+            app.TestSceneDropDown.ItemsData = {'1', '2', '3', '4', '5', '6', '7'};
             app.TestSceneDropDown.ValueChangedFcn = createCallbackFcn(app, @TestSceneDropDownValueChanged, true);
             app.TestSceneDropDown.Visible = 'off';
             app.TestSceneDropDown.Position = [107 111 100 22];
@@ -297,30 +320,31 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create SimulatedtimeLabel
             app.SimulatedtimeLabel = uilabel(app.RightPanel);
-            app.SimulatedtimeLabel.Position = [10 151 88 22];
+            app.SimulatedtimeLabel.Position = [10 161 88 22];
             app.SimulatedtimeLabel.Text = 'Simulated time:';
 
             % Create LastactionsTextAreaLabel
             app.LastactionsTextAreaLabel = uilabel(app.RightPanel);
             app.LastactionsTextAreaLabel.HorizontalAlignment = 'right';
-            app.LastactionsTextAreaLabel.Position = [307 151 70 22];
+            app.LastactionsTextAreaLabel.Position = [317 151 70 22];
             app.LastactionsTextAreaLabel.Text = 'Last actions';
 
             % Create LastactionsTextArea
             app.LastactionsTextArea = uitextarea(app.RightPanel);
-            app.LastactionsTextArea.Editable = 'off';
-            app.LastactionsTextArea.Position = [307 14 429 138];
+            app.LastactionsTextArea.Position = [317 14 419 138];
 
             % Create EditField
             app.EditField = uieditfield(app.RightPanel, 'numeric');
             app.EditField.ValueDisplayFormat = '%11.4g ns';
             app.EditField.Editable = 'off';
-            app.EditField.Position = [10 130 88 22];
+            app.EditField.Position = [10 140 88 22];
 
             % Create placeholderLabel
             app.placeholderLabel = uilabel(app.RightPanel);
-            app.placeholderLabel.Position = [10 14 342 98];
-            app.placeholderLabel.Text = {'Bekannte Bugs:'; 'X'};
+            app.placeholderLabel.FontSize = 11;
+            app.placeholderLabel.Visible = 'off';
+            app.placeholderLabel.Position = [10 6 309 135];
+            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. Drücke auf Start Test-App'; '2. Wähle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drücken '; '(beim Background dasselbe)'; '4. Durch erneutes Drücken auf Start Test-App cleart sich '; 'das Panel'; '5. Bekannter Fehler: Verbuggte Ausgabe'};
 
             % Create Panel
             app.Panel = uipanel(app.RightPanel);
@@ -332,8 +356,8 @@ classdef visualization2_exported < matlab.apps.AppBase
             title(app.UIAxes, 'Title')
             xlabel(app.UIAxes, 'X')
             ylabel(app.UIAxes, 'Y')
-            app.UIAxes.XLim = [0 1481];
-            app.UIAxes.YLim = [0 826];
+            app.UIAxes.XLim = [0 1581];
+            app.UIAxes.YLim = [0 853];
             app.UIAxes.ZLim = [0 100];
             app.UIAxes.XAxisLocation = 'origin';
             app.UIAxes.XColor = [0.15 0.15 0.15];

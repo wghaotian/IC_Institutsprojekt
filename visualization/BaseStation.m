@@ -24,7 +24,12 @@ classdef BaseStation < SimulationsObject
                
            end
        end
-       
+       %% Plotting function    
+        function plotBS(obj,axis)
+            xy = obj.pos;
+            plot(axis,xy(1), xy(2), 'rx','MarkerSize',10);
+        end
+        
    end
 end
 
