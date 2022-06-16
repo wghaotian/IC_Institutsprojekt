@@ -32,38 +32,35 @@ classdef visualization2_exported < matlab.apps.AppBase
 
     
     properties (Access = public)
-        gx;
+        map;
         countStart = 0;
     end
     
-    methods (Access = private)
-        
-    % Value changed function: DropDown
-    function DropDownValueChanged(app, event)
-        value = app.DropDown.Value;
-        %If Panel 1 is selected, show panel 1
-        if strcmp(value,'Plotting Test')
-            %% Map initialization
-            karte = Map(500,500,1000,100);
-            
-            %% Start App
-            visualization;
-            
-            app.UIAxes.XLimMode = 'manual';
-            app.UIAxes.XLim = [0,karte.map_size(1)];
-            app.UIAxes.YLim = [0,karte.map_size(2)];
-            
-            %% Plotting-Test
-            plotCU(Cu1,app.UIAxes);
-            %Bs1 = BaseStation(100,300,'BS1',mode);
-
-        elseif strcmp(value,'Panel 2')
-            app.Panel2.Visible = 'on';
-        elseif strcmp(value,'Panel 3')
-            app.Panel3.Visible = 'on';
-        end
-    end
-    end
+%     % Value changed function: DropDown
+%     function DropDownValueChanged(app, event)
+%         value = app.DropDown.Value;
+%         %If Panel 1 is selected, show panel 1
+%         if strcmp(value,'Plotting Test')
+%             %% Map initialization
+%             karte = Map(500,500,1000,100);
+%             
+%             %% Start App
+%             visualization;
+%             
+%             app.UIAxes.XLimMode = 'manual';
+%             app.UIAxes.XLim = [0,karte.map_size(1)];
+%             app.UIAxes.YLim = [0,karte.map_size(2)];
+%             
+%             %% Plotting-Test
+%             plotCU(Cu1,app.UIAxes);
+%             %Bs1 = BaseStation(100,300,'BS1',mode);
+% 
+%         elseif strcmp(value,'Panel 2')
+%             app.Panel2.Visible = 'on';
+%         elseif strcmp(value,'Panel 3')
+%             app.Panel3.Visible = 'on';
+%         end
+%     end
     
 
     % Callbacks that handle component events
@@ -92,13 +89,16 @@ classdef visualization2_exported < matlab.apps.AppBase
                 imshow('map_background.png','Parent',app.UIAxes);
             elseif (value == '3' )
                 % Add map
-                
+                app.map = Map(1200,750,10000);
+                app.UIAxes.XLimMode = 'manual';
+                app.UIAxes.XLim = [0,app.map.map_size(1)];
+                app.UIAxes.YLim = [0,app.map.map_size(2)];
             elseif (value == '4' )
                 % Add BS
-                
+                app.map.add_BS([400,250]);
             elseif (value == '5' )
                 % Add CU
-                
+                app.map.add_CS;
             elseif (value == '6' )
                 % Remove CU
                 
@@ -233,7 +233,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.TestSceneDropDownLabel = uilabel(app.LeftPanel);
             app.TestSceneDropDownLabel.HorizontalAlignment = 'right';
             app.TestSceneDropDownLabel.Visible = 'off';
-            app.TestSceneDropDownLabel.Position = [20 111 69 22];
+            app.TestSceneDropDownLabel.Position = [23 111 69 22];
             app.TestSceneDropDownLabel.Text = 'Test-Scene:';
 
             % Create TestSceneDropDown
@@ -242,7 +242,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.TestSceneDropDown.ItemsData = {'1', '2', '3', '4', '5', '6'};
             app.TestSceneDropDown.ValueChangedFcn = createCallbackFcn(app, @TestSceneDropDownValueChanged, true);
             app.TestSceneDropDown.Visible = 'off';
-            app.TestSceneDropDown.Position = [104 111 100 22];
+            app.TestSceneDropDown.Position = [107 111 100 22];
             app.TestSceneDropDown.Value = '1';
 
             % Create StopResumeSimulationSwitchLabel
@@ -253,34 +253,34 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create Image
             app.Image = uiimage(app.LeftPanel);
-            app.Image.Position = [7 14 95 27];
+            app.Image.Position = [10 14 95 27];
             app.Image.ImageSource = 'ic-institute.png';
 
             % Create Label
             app.Label = uilabel(app.LeftPanel);
             app.Label.FontSize = 7.9;
-            app.Label.Position = [102 11 115 31];
+            app.Label.Position = [105 11 115 31];
             app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till Müller'};
 
             % Create Label2
             app.Label2 = uilabel(app.LeftPanel);
             app.Label2.FontSize = 8;
             app.Label2.FontWeight = 'bold';
-            app.Label2.Position = [14 37 203 42];
+            app.Label2.Position = [17 37 203 42];
             app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
 
             % Create StartTestAppButton
             app.StartTestAppButton = uibutton(app.LeftPanel, 'push');
             app.StartTestAppButton.ButtonPushedFcn = createCallbackFcn(app, @StartTestAppButtonPushed, true);
             app.StartTestAppButton.Visible = 'off';
-            app.StartTestAppButton.Position = [59 140 100 22];
+            app.StartTestAppButton.Position = [62 140 100 22];
             app.StartTestAppButton.Text = 'Start Test-App';
 
             % Create ShowTestsCheckBox
             app.ShowTestsCheckBox = uicheckbox(app.LeftPanel);
             app.ShowTestsCheckBox.ValueChangedFcn = createCallbackFcn(app, @ShowTestsCheckBoxValueChanged, true);
             app.ShowTestsCheckBox.Text = 'Show Tests?';
-            app.ShowTestsCheckBox.Position = [13 82 90 22];
+            app.ShowTestsCheckBox.Position = [16 82 90 22];
 
             % Create ONButton
             app.ONButton = uibutton(app.LeftPanel, 'state');
@@ -332,9 +332,12 @@ classdef visualization2_exported < matlab.apps.AppBase
             title(app.UIAxes, 'Title')
             xlabel(app.UIAxes, 'X')
             ylabel(app.UIAxes, 'Y')
-            app.UIAxes.XLim = [0 1000];
-            app.UIAxes.YLim = [0 750];
+            app.UIAxes.XLim = [0 1481];
+            app.UIAxes.YLim = [0 826];
             app.UIAxes.ZLim = [0 100];
+            app.UIAxes.XAxisLocation = 'origin';
+            app.UIAxes.XColor = [0.15 0.15 0.15];
+            app.UIAxes.YColor = [0.15 0.15 0.15];
             app.UIAxes.Position = [1 -1 726 483];
 
             % Show the figure after all components are created
