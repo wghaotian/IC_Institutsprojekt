@@ -1,7 +1,8 @@
 classdef SimulationsObject < handle
-	properties (GetAccess=public)
+	properties
         pos=[0,0];
         name="";
+        ind;
     end
     methods
         %% Calculate Length Function
@@ -10,13 +11,11 @@ classdef SimulationsObject < handle
             len=sqrt(vec*vec');
         end
         %% Constructor
-        function obj=SimulationsObject(x,y,s)
+        function obj=SimulationsObject(x,y,s,id)
             obj.pos=[x,y];
             obj.name=s;
+            obj.ind=id;
         end
-%         %% Return position
-%         function xy = position(obj)
-%             xy= obj.pos;
-%         end
+
     end
 end
