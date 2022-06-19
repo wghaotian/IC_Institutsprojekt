@@ -2,27 +2,27 @@ classdef visualization2_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        UIFigure                  matlab.ui.Figure
-        GridLayout                matlab.ui.container.GridLayout
-        LeftPanel                 matlab.ui.container.Panel
-        GModellSimulationLabel    matlab.ui.control.Label
-        TestSceneDropDownLabel    matlab.ui.control.Label
-        TestSceneDropDown         matlab.ui.control.DropDown
+        UIFigure                 matlab.ui.Figure
+        GridLayout               matlab.ui.container.GridLayout
+        LeftPanel                matlab.ui.container.Panel
+        GModellSimulationLabel   matlab.ui.control.Label
+        TestSceneDropDownLabel   matlab.ui.control.Label
+        TestSceneDropDown        matlab.ui.control.DropDown
         StopResumeSimulationSwitchLabel  matlab.ui.control.Label
-        Image                     matlab.ui.control.Image
-        Label                     matlab.ui.control.Label
-        Label2                    matlab.ui.control.Label
-        StartTestAppButton        matlab.ui.control.Button
-        ShowTestsCheckBox         matlab.ui.control.CheckBox
-        ONButton                  matlab.ui.control.StateButton
-        RightPanel                matlab.ui.container.Panel
-        SimulatedtimeLabel        matlab.ui.control.Label
-        LastactionsTextAreaLabel  matlab.ui.control.Label
-        LastactionsTextArea       matlab.ui.control.TextArea
-        EditField                 matlab.ui.control.NumericEditField
-        placeholderLabel          matlab.ui.control.Label
-        Panel                     matlab.ui.container.Panel
-        UIAxes                    matlab.ui.control.UIAxes
+        Image                    matlab.ui.control.Image
+        Label                    matlab.ui.control.Label
+        Label2                   matlab.ui.control.Label
+        StartTestAppButton       matlab.ui.control.Button
+        ShowTestsCheckBox        matlab.ui.control.CheckBox
+        ONButton                 matlab.ui.control.StateButton
+        RightPanel               matlab.ui.container.Panel
+        SimulatedtimeLabel       matlab.ui.control.Label
+        LastactionTextAreaLabel  matlab.ui.control.Label
+        LastactionTextArea       matlab.ui.control.TextArea
+        EditField                matlab.ui.control.NumericEditField
+        placeholderLabel         matlab.ui.control.Label
+        KartePanel               matlab.ui.container.Panel
+        UIAxes                   matlab.ui.control.UIAxes
     end
 
     % Properties that correspond to apps with auto-reflow
@@ -33,6 +33,7 @@ classdef visualization2_exported < matlab.apps.AppBase
     
     properties (Access = public)
         map;
+        text;
         countStart = 0;
         plottedCUs = 0;
         plottedCUList;
@@ -73,9 +74,10 @@ classdef visualization2_exported < matlab.apps.AppBase
             if (app.countStart ~= 0)
                 cla(app.UIAxes);
                 app.countStart = 0;
-                app.LastactionsTextArea.Value = "Panel cleared" + newline + app.LastactionsTextArea.Value;
+                disp("Panel cleared");
+                app.LastactionTextArea.Value = "Panel cleared";
             end
-%             app.gx = geoaxes(app.Panel);
+%             app.gx = geoaxes(app.KartePanel);
 %             geobasemap(app.gx,'streets-light')
 %             hold(app.gx,'on')
             app.countStart = app.countStart +1 ;
@@ -86,44 +88,46 @@ classdef visualization2_exported < matlab.apps.AppBase
         function TestSceneDropDownValueChanged(app, event)
             value = app.TestSceneDropDown.Value;
             if (app.countStart == 0)
-                app.LastactionsTextArea.Value = "Drücke zuerst auf den Start Knopf!" + newline + app.LastactionsTextArea.Value;
+                app.text = "Drücke zuerst auf den Start Knopf!";
             elseif (value == '2' )
                 % Add background
                 imshow('map_background.png','Parent',app.UIAxes);
-                app.LastactionsTextArea.Value = "Background added." + newline + app.LastactionsTextArea.Value;
+                app.text = "Background added.";
             elseif (value == '3' )
                 % Add map
                 app.map = Map(1200,750,10000);
                 app.UIAxes.XLimMode = 'manual';
                 app.UIAxes.XLim = [0,app.map.map_size(1)];
                 app.UIAxes.YLim = [0,app.map.map_size(2)];
-                app.LastactionsTextArea.Value = "Map with the size: [" + app.map.map_size(1) + "," + app.map.map_size(2) + "] has been created." + newline + app.LastactionsTextArea.Value;
+                app.text = "Map with the size: [" + app.map.map_size(1) + "," + app.map.map_size(2) + "] has been created.";
             elseif (value == '4' )
                 % Add BS
                 app.map = app.map.add_BS([400,250]);
 %                 Funktioniert noch nicht daher darunter manuell
                 app.map.BS_List(1).plotBS(app.UIAxes);
 %                 plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
-                app.LastactionsTextArea.Value = "Basestation at the position [400,250] has been created." + newline + app.LastactionsTextArea.Value;
+                app.text = "Basestation at the position [400,250] has been created.";
             elseif (value == '5' )
                 % Add CU
 %                 Funktioniert noch nicht daher darunter manuell
 %                 app.map.add_CS;
                 app.plottedCUs = app.plottedCUs + 1;
                 app.plottedCUList = [app.plottedCUList plot(app.UIAxes,350, 500,'bo','MarkerSize',8)];
-                app.LastactionsTextArea.Value = "Customer at the position [350,500] has been created." + newline + app.LastactionsTextArea.Value;
+                app.text = "Customer at the position [350,500] has been created.";
             elseif (value == '6' )
                 % Remove CU
                 delete(app.plottedCUList(app.plottedCUs));
-                app.LastactionsTextArea.Value = "Customer at the position [350,500] has been removed." + newline + app.LastactionsTextArea.Value;
+                app.text = "Customer at the position [350,500] has been removed.";
             elseif (value == '7' )
                 % Remove Background
                 axesHandlesToChildObjects = findobj(app.UIAxes, 'Type', 'image');
                 if ~isempty(axesHandlesToChildObjects)
                   delete(axesHandlesToChildObjects);
-                  app.LastactionsTextArea.Value = "Background removed." + newline + app.LastactionsTextArea.Value;
+                  app.text = "Background removed.";
                 end
             end
+            disp(app.text);
+            app.LastactionTextArea.Value = app.text;
 %             elseif (value == '2' )
 %                 latAachen = 50.775555;
 %                 lonAachen = 6.083611;
@@ -148,16 +152,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Callback function
         function SelectSceneDropDown_2ValueChanged(app, event)
-            value = app.SelectSceneDropDown_2.Value;
-            if (app.countStart == 0)
-                app.LastactionsTextArea.Value = "Drücke zuerst auf den Start Knopf!" + newline + app.LastactionsTextArea.Value;
-            elseif (value == '2' )
-                latAachen = 50.0;
-                lonAachen = 6.0;
-                latKoeln = 80;
-                lonKoeln = 7;
-                plot(app.gx,[latAachen latKoeln],[lonAachen lonKoeln],'g-*')
-            end
+
         end
 
         % Callback function
@@ -165,7 +160,8 @@ classdef visualization2_exported < matlab.apps.AppBase
             if (app.countStart ~= 0)
                 f = cla(app.gx,'reset');
                 f.Children;
-                app.LastactionsTextArea.Value = "Panel cleared" + newline + app.LastactionsTextArea.Value;
+                disp("Panel cleared");
+                app.LastactionTextArea.Value = "Panel cleared";
             end
             app.gx = app.UIAxes;
             hold(app.gx,'on')
@@ -180,11 +176,15 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.TestSceneDropDown.Visible = 1;
                 app.TestSceneDropDownLabel.Visible = 1;
                 app.placeholderLabel.Visible = 1;
+                app.EditField.Visible = 0;
+                app.SimulatedtimeLabel.Visible = 0;
             elseif (value == 0)
                 app.StartTestAppButton.Visible = 0;
                 app.TestSceneDropDown.Visible = 0;
                 app.TestSceneDropDownLabel.Visible = 0;
                 app.placeholderLabel.Visible = 0;
+                app.EditField.Visible = 1;
+                app.SimulatedtimeLabel.Visible = 1;
             end
         end
 
@@ -320,40 +320,40 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create SimulatedtimeLabel
             app.SimulatedtimeLabel = uilabel(app.RightPanel);
-            app.SimulatedtimeLabel.Position = [10 161 88 22];
+            app.SimulatedtimeLabel.Position = [98 83 88 22];
             app.SimulatedtimeLabel.Text = 'Simulated time:';
 
-            % Create LastactionsTextAreaLabel
-            app.LastactionsTextAreaLabel = uilabel(app.RightPanel);
-            app.LastactionsTextAreaLabel.HorizontalAlignment = 'right';
-            app.LastactionsTextAreaLabel.Position = [317 151 70 22];
-            app.LastactionsTextAreaLabel.Text = 'Last actions';
+            % Create LastactionTextAreaLabel
+            app.LastactionTextAreaLabel = uilabel(app.RightPanel);
+            app.LastactionTextAreaLabel.HorizontalAlignment = 'right';
+            app.LastactionTextAreaLabel.Position = [320 111 67 22];
+            app.LastactionTextAreaLabel.Text = 'Last action:';
 
-            % Create LastactionsTextArea
-            app.LastactionsTextArea = uitextarea(app.RightPanel);
-            app.LastactionsTextArea.Position = [317 14 419 138];
+            % Create LastactionTextArea
+            app.LastactionTextArea = uitextarea(app.RightPanel);
+            app.LastactionTextArea.Position = [317 14 419 98];
 
             % Create EditField
             app.EditField = uieditfield(app.RightPanel, 'numeric');
             app.EditField.ValueDisplayFormat = '%11.4g ns';
             app.EditField.Editable = 'off';
-            app.EditField.Position = [10 140 88 22];
+            app.EditField.Position = [98 62 88 22];
 
             % Create placeholderLabel
             app.placeholderLabel = uilabel(app.RightPanel);
             app.placeholderLabel.FontSize = 11;
             app.placeholderLabel.Visible = 'off';
             app.placeholderLabel.Position = [10 6 309 135];
-            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. Drücke auf Start Test-App'; '2. Wähle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drücken '; '(beim Background dasselbe)'; '4. Durch erneutes Drücken auf Start Test-App cleart sich '; 'das Panel'; '5. Bekannter Fehler: Verbuggte Ausgabe'};
+            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. Drücke auf Start Test-App'; '2. Wähle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drücken '; '(beim Background dasselbe)'; '4. Durch erneutes Drücken auf Start Test-App cleart sich '; 'das Panel'};
 
-            % Create Panel
-            app.Panel = uipanel(app.RightPanel);
-            app.Panel.Title = 'Panel';
-            app.Panel.Position = [10 183 726 504];
+            % Create KartePanel
+            app.KartePanel = uipanel(app.RightPanel);
+            app.KartePanel.Title = 'Karte';
+            app.KartePanel.Position = [10 140 726 547];
 
             % Create UIAxes
-            app.UIAxes = uiaxes(app.Panel);
-            title(app.UIAxes, 'Title')
+            app.UIAxes = uiaxes(app.KartePanel);
+            title(app.UIAxes, '')
             xlabel(app.UIAxes, 'X')
             ylabel(app.UIAxes, 'Y')
             app.UIAxes.XLim = [0 1581];
@@ -362,7 +362,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.UIAxes.XAxisLocation = 'origin';
             app.UIAxes.XColor = [0.15 0.15 0.15];
             app.UIAxes.YColor = [0.15 0.15 0.15];
-            app.UIAxes.Position = [1 -1 726 483];
+            app.UIAxes.Position = [1 0 726 525];
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
