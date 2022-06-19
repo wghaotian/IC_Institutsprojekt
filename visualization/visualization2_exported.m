@@ -102,21 +102,22 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.text = "Map with the size: [" + app.map.map_size(1) + "," + app.map.map_size(2) + "] has been created.";
             elseif (value == '4' )
                 % Add BS
-                app.map = app.map.add_BS([400,250]);
-%                 Funktioniert noch nicht daher darunter manuell
-                app.map.BS_List(1).plotBS(app.UIAxes);
-%                 plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
+%                 app.map = app.map.add_BS([400,250]);
+%                 app.map.BS_List(1).plotBS(app.UIAxes);
+                plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
                 app.text = "Basestation at the position [400,250] has been created.";
             elseif (value == '5' )
                 % Add CU
-%                 Funktioniert noch nicht daher darunter manuell
-%                 app.map.add_CS;
+%                 app.map = app.map.add_CS;
+%                 app.map.CS_List(1).plotCS(app.UIAxes);
+%                 app.plottedCUList = [app.plottedCUList app.map.CS_List(1).plotCS(app.UIAxes)];
                 app.plottedCUs = app.plottedCUs + 1;
-                app.plottedCUList = [app.plottedCUList plot(app.UIAxes,350, 500,'bo','MarkerSize',8)];
+                app.plottedCUList = [app.plottedCUList plot(app.UIAxes,350, 560,'bo','MarkerSize',8)];
                 app.text = "Customer at the position [350,500] has been created.";
             elseif (value == '6' )
                 % Remove CU
                 delete(app.plottedCUList(app.plottedCUs));
+%                 delete(app.map.CS_List(1));
                 app.text = "Customer at the position [350,500] has been removed.";
             elseif (value == '7' )
                 % Remove Background
@@ -152,7 +153,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Callback function
         function SelectSceneDropDown_2ValueChanged(app, event)
-
+            
         end
 
         % Callback function
