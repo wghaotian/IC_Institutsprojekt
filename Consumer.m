@@ -38,6 +38,10 @@ classdef Consumer < SimulationsObject
                      
              end
          end
+%% Plotting function
+        function plotted = plotCS(obj,axis)
+            plotted = plot(axis,obj.pos(1), obj.pos(2),'bo','MarkerSize',8);
+        end
     end
     
     

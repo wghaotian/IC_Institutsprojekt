@@ -35,10 +35,44 @@ classdef visualization2_exported < matlab.apps.AppBase
         map;
         text;
         countStart = 0;
+        plottedBSs = 0;
         plottedCUs = 0;
         plottedCUList;
+        plottedBSList;
     end
     
+    %% Funktionen zum Plotten aller BaseStations und Consumer
+    methods (Access = public)
+        function plotBSs(app)
+            for i = 1:app.map.BS_List.size
+            app.plottedBSs = app.plottedBSs + 1;
+            app.plottedBSList = [app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes)];
+            end         
+        end
+        function plotCSs(app)
+            for i = 1:app.map.CS_List.size
+            app.plottedCUs = app.plottedCUs + 1;
+            app.plottedCUList = [app.plottedCUList app.map.CS_List(i).plotCS(app.UIAxes)];
+            end
+        end
+    %% Funktionen zum Deplotten und löschen aller BaseStations und Consumer
+        function deplotBSs(app)
+            for i = 1:app.map.BS_List.size
+            delete(app.plottedBSList(app.plottedCUs));
+            app.plottedBSList = app.plottedBSList([1:app.plottedBSs-1, app.plottedBSs+1:end]);
+            app.map.BS_List = app.map.BS_List([1:app.plottedBSs-1, app.plottedBSs+1:end]);
+            app.plottedBSs = app.plottedBSs - 1;
+            end         
+        end
+        function deplotCSs(app)
+            for i = 1:app.map.CS_List.size
+            delete(app.plottedCUList(app.plottedCUs));
+            app.plottedCUList = app.plottedCUList([1:app.plottedCUs-1, app.plottedCUs+1:end]);
+            app.map.CS_List = app.map.CS_List([1:app.plottedCUs-1, app.plottedCUs+1:end]);
+            app.plottedCUs = app.plottedCUs - 1;
+            end
+        end
+    end
 %     % Value changed function: DropDown
 %     function DropDownValueChanged(app, event)
 %         value = app.DropDown.Value;
@@ -76,6 +110,10 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.countStart = 0;
                 disp("Panel cleared");
                 app.LastactionTextArea.Value = "Panel cleared";
+            elseif (app.countStart == 0)
+                config;
+                disp("Config geladen");
+                app.LastactionTextArea.Value = "Config geladen";
             end
 %             app.gx = geoaxes(app.KartePanel);
 %             geobasemap(app.gx,'streets-light')
@@ -87,6 +125,7 @@ classdef visualization2_exported < matlab.apps.AppBase
         % Value changed function: TestSceneDropDown
         function TestSceneDropDownValueChanged(app, event)
             value = app.TestSceneDropDown.Value;
+            config;
             if (app.countStart == 0)
                 app.text = "Drücke zuerst auf den Start Knopf!";
             elseif (value == '2' )
@@ -102,23 +141,25 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.text = "Map with the size: [" + app.map.map_size(1) + "," + app.map.map_size(2) + "] has been created.";
             elseif (value == '4' )
                 % Add BS
-%                 app.map = app.map.add_BS([400,250]);
-%                 app.map.BS_List(1).plotBS(app.UIAxes);
-                plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
+                app.map = app.map.add_BS([400,250]);
+                app.map.BS_List(1).plotBS(app.UIAxes);
+%                plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
                 app.text = "Basestation at the position [400,250] has been created.";
             elseif (value == '5' )
                 % Add CU
-%                 app.map = app.map.add_CS;
-%                 app.map.CS_List(1).plotCS(app.UIAxes);
-%                 app.plottedCUList = [app.plottedCUList app.map.CS_List(1).plotCS(app.UIAxes)];
+                app.map = app.map.add_CS;
                 app.plottedCUs = app.plottedCUs + 1;
-                app.plottedCUList = [app.plottedCUList plot(app.UIAxes,350, 560,'bo','MarkerSize',8)];
-                app.text = "Customer at the position [350,500] has been created.";
+%                 app.plottedCUList = [app.plottedCUList app.map.CS_List(1).plotCS(app.UIAxes)];
+%                app.plottedCUList = [app.plottedCUList plot(app.UIAxes,350, 560,'bo','MarkerSize',8)];
+                app.plottedCUList = [app.plottedCUList app.map.CS_List(app.plottedCUs).plotCS(app.UIAxes)];
+                app.text = "Customer at the position [" + app.map.CS_List(app.plottedCUs).pos(1) + "," + app.map.CS_List(app.plottedCUs).pos(2) +"] has been created.";
             elseif (value == '6' )
                 % Remove CU
+                app.text = "Customer at the position [" + app.map.CS_List(app.plottedCUs).pos(1) + "," + app.map.CS_List(app.plottedCUs).pos(2) +"] has been removed.";
                 delete(app.plottedCUList(app.plottedCUs));
-%                 delete(app.map.CS_List(1));
-                app.text = "Customer at the position [350,500] has been removed.";
+                app.plottedCUList = app.plottedCUList([1:app.plottedCUs-1, app.plottedCUs+1:end]);
+                app.map.CS_List = app.map.CS_List([1:app.plottedCUs-1, app.plottedCUs+1:end]);
+                app.plottedCUs = app.plottedCUs - 1;
             elseif (value == '7' )
                 % Remove Background
                 axesHandlesToChildObjects = findobj(app.UIAxes, 'Type', 'image');
