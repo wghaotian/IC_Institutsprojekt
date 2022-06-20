@@ -34,6 +34,7 @@ classdef visualization2_exported < matlab.apps.AppBase
     properties (Access = public)
         map;
         text;
+        plotTest;
         countStart = 0;
         plottedBSs = 0;
         plottedCUs = 0;
@@ -145,6 +146,12 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.map.BS_List(1).plotBS(app.UIAxes);
 %                plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
                 app.text = "Basestation at the position [400,250] has been created.";
+            elseif (value == '8' )
+                % Add BS
+                app.map = app.map.add_BS([250,400]);
+                app.map.BS_List(2).setSleep(0);
+                app.map.BS_List(2).plotBS(app.UIAxes);
+                app.text = "Basestation at the position [250,400] has been created.";
             elseif (value == '5' )
                 % Add CU
                 app.map = app.map.add_CS;
@@ -167,6 +174,14 @@ classdef visualization2_exported < matlab.apps.AppBase
                   delete(axesHandlesToChildObjects);
                   app.text = "Background removed.";
                 end
+%             elseif (value == '8' )
+%                 xy = [300 500];
+%                 BSplot = plot(app.UIAxes,xy(1), xy(2), 'rx','MarkerSize',10);
+%                 onoffplot = plot(app.UIAxes,xy(1)+16, xy(2)+8, 'g.','MarkerSize',10);
+%                 statusplot = text(app.UIAxes,xy(1)+12,xy(2)-8,'SM1','Color',[.7 .7 .7],'FontSize',8); %#ok<ADPROPLC> 
+%                 app.plotTest = [BSplot onoffplot statusplot];
+%             elseif (value == '9' )
+%                 delete(app.plotTest);
             end
             disp(app.text);
             app.LastactionTextArea.Value = app.text;
@@ -303,8 +318,8 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create TestSceneDropDown
             app.TestSceneDropDown = uidropdown(app.LeftPanel);
-            app.TestSceneDropDown.Items = {'Nothing', 'Add Background', 'Add Map', 'Add BS', 'Add CU', 'Remove CU', 'Remove Background'};
-            app.TestSceneDropDown.ItemsData = {'1', '2', '3', '4', '5', '6', '7'};
+            app.TestSceneDropDown.Items = {'Nothing', 'Add Background', 'Add Map', 'Add BS', 'Add BS2', 'Add CU', 'Remove CU', 'Remove Background'};
+            app.TestSceneDropDown.ItemsData = {'1', '2', '3', '4', '8', '5', '6', '7'};
             app.TestSceneDropDown.ValueChangedFcn = createCallbackFcn(app, @TestSceneDropDownValueChanged, true);
             app.TestSceneDropDown.Visible = 'off';
             app.TestSceneDropDown.Position = [107 111 100 22];
