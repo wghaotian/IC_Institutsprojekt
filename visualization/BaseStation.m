@@ -180,7 +180,6 @@ classdef BaseStation < SimulationsObject
       %% Plotting function    
         function plotted = plotBS(obj,axis)
             xy = obj.pos;
-            obj.sleepMode
             BSplot = plot(axis,xy(1), xy(2), 'rx','MarkerSize',10);
             if(obj.sleepMode > 0)
                 onoffplot = plot(axis,xy(1)+16, xy(2)+8, 'g.','MarkerSize',10);

@@ -107,12 +107,6 @@ classdef Map
             end
         end
         
-          %% Plotting function    
-        function plotCU(obj,axis)
-            xy = obj.pos;
-            plot(axis,xy(1), xy(2),'bo','MarkerSize',8);
-        end
-        
     end
 end
 

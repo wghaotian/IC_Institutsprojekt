@@ -2,27 +2,30 @@ classdef visualization2_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        UIFigure                 matlab.ui.Figure
-        GridLayout               matlab.ui.container.GridLayout
-        LeftPanel                matlab.ui.container.Panel
-        GModellSimulationLabel   matlab.ui.control.Label
-        TestSceneDropDownLabel   matlab.ui.control.Label
-        TestSceneDropDown        matlab.ui.control.DropDown
+        UIFigure                       matlab.ui.Figure
+        GridLayout                     matlab.ui.container.GridLayout
+        LeftPanel                      matlab.ui.container.Panel
+        GModellSimulationLabel         matlab.ui.control.Label
+        TestSceneDropDownLabel         matlab.ui.control.Label
+        TestSceneDropDown              matlab.ui.control.DropDown
         StopResumeSimulationSwitchLabel  matlab.ui.control.Label
-        Image                    matlab.ui.control.Image
-        Label                    matlab.ui.control.Label
-        Label2                   matlab.ui.control.Label
-        StartTestAppButton       matlab.ui.control.Button
-        ShowTestsCheckBox        matlab.ui.control.CheckBox
-        ONButton                 matlab.ui.control.StateButton
-        RightPanel               matlab.ui.container.Panel
-        SimulatedtimeLabel       matlab.ui.control.Label
-        LastactionTextAreaLabel  matlab.ui.control.Label
-        LastactionTextArea       matlab.ui.control.TextArea
-        EditField                matlab.ui.control.NumericEditField
-        placeholderLabel         matlab.ui.control.Label
-        KartePanel               matlab.ui.container.Panel
-        UIAxes                   matlab.ui.control.UIAxes
+        Image                          matlab.ui.control.Image
+        Label                          matlab.ui.control.Label
+        Label2                         matlab.ui.control.Label
+        StartTestAppButton             matlab.ui.control.Button
+        ShowTestsCheckBox              matlab.ui.control.CheckBox
+        ONButton                       matlab.ui.control.StateButton
+        StartselectedSimulationButton  matlab.ui.control.Button
+        ChooseSimulationDropDownLabel  matlab.ui.control.Label
+        ChooseSimulationDropDown       matlab.ui.control.DropDown
+        RightPanel                     matlab.ui.container.Panel
+        SimulatedtimeLabel             matlab.ui.control.Label
+        LastactionTextAreaLabel        matlab.ui.control.Label
+        LastactionTextArea             matlab.ui.control.TextArea
+        EditField                      matlab.ui.control.NumericEditField
+        placeholderLabel               matlab.ui.control.Label
+        KartePanel                     matlab.ui.container.Panel
+        UIAxes                         matlab.ui.control.UIAxes
     end
 
     % Properties that correspond to apps with auto-reflow
@@ -56,7 +59,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.plottedCUList = [app.plottedCUList app.map.CS_List(i).plotCS(app.UIAxes)];
             end
         end
-    %% Funktionen zum Deplotten und löschen aller BaseStations und Consumer
+    %% Funktionen zum Deplotten und lÃ¶schen aller BaseStations und Consumer
         function deplotBSs(app)
             for i = 1:app.map.BS_List.size
             delete(app.plottedBSList(app.plottedCUs));
@@ -76,7 +79,7 @@ classdef visualization2_exported < matlab.apps.AppBase
     end
 %     % Value changed function: DropDown
 %     function DropDownValueChanged(app, event)
-%         value = app.DropDown.Value;
+%         value = app.ChooseSimulationDropDown.Value;
 %         %If Panel 1 is selected, show panel 1
 %         if strcmp(value,'Plotting Test')
 %             %% Map initialization
@@ -128,7 +131,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             value = app.TestSceneDropDown.Value;
             config;
             if (app.countStart == 0)
-                app.text = "Drücke zuerst auf den Start Knopf!";
+                app.text = "DrÃ¼cke zuerst auf den Start Knopf!";
             elseif (value == '2' )
                 % Add background
                 imshow('map_background.png','Parent',app.UIAxes);
@@ -257,6 +260,32 @@ classdef visualization2_exported < matlab.apps.AppBase
             end
         end
 
+        % Value changed function: ChooseSimulationDropDown
+        function ChooseSimulationDropDownValueChanged(app, event)
+            value = app.ChooseSimulationDropDown.Value;
+            ausgabe = ""; %#ok<NASGU> 
+            if value ~= "-----"
+                ausgabe = "Simulation: '" + value + "' selected.";
+            else
+                ausgabe = "No Simulation selected.";
+            end
+            disp(ausgabe);
+            app.LastactionTextArea.Value = ausgabe;
+        end
+
+        % Button pushed function: StartselectedSimulationButton
+        function StartselectedSimulationButtonPushed(app, event)
+            if (app.countStart ~= 0)
+                f = cla(app.gx,'reset');
+                f.Children;
+                disp("Panel cleared");
+                app.LastactionTextArea.Value = "Panel cleared";
+            end
+            app.gx = app.UIAxes;
+            hold(app.gx,'on')
+            app.countStart = app.countStart +1 ;
+        end
+
         % Changes arrangement of the app based on UIFigure width
         function updateAppLayout(app, event)
             currentFigureWidth = app.UIFigure.Position(3);
@@ -340,14 +369,14 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.Label = uilabel(app.LeftPanel);
             app.Label.FontSize = 7.9;
             app.Label.Position = [105 11 115 31];
-            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till Müller'};
+            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till MÃ¼ller'};
 
             % Create Label2
             app.Label2 = uilabel(app.LeftPanel);
             app.Label2.FontSize = 8;
             app.Label2.FontWeight = 'bold';
             app.Label2.Position = [17 37 203 42];
-            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
+            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen fÃ¼r adaptive Schlafmodi '; 'in 5G-Netzen'};
 
             % Create StartTestAppButton
             app.StartTestAppButton = uibutton(app.LeftPanel, 'push');
@@ -369,6 +398,26 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.ONButton.BackgroundColor = [0 1 0];
             app.ONButton.Position = [110 630 100 22];
             app.ONButton.Value = true;
+
+            % Create StartselectedSimulationButton
+            app.StartselectedSimulationButton = uibutton(app.LeftPanel, 'push');
+            app.StartselectedSimulationButton.ButtonPushedFcn = createCallbackFcn(app, @StartselectedSimulationButtonPushed, true);
+            app.StartselectedSimulationButton.Position = [38 519 148 22];
+            app.StartselectedSimulationButton.Text = 'Start selected Simulation';
+
+            % Create ChooseSimulationDropDownLabel
+            app.ChooseSimulationDropDownLabel = uilabel(app.LeftPanel);
+            app.ChooseSimulationDropDownLabel.HorizontalAlignment = 'right';
+            app.ChooseSimulationDropDownLabel.FontWeight = 'bold';
+            app.ChooseSimulationDropDownLabel.Position = [49 587 118 22];
+            app.ChooseSimulationDropDownLabel.Text = 'Choose Simulation:';
+
+            % Create ChooseSimulationDropDown
+            app.ChooseSimulationDropDown = uidropdown(app.LeftPanel);
+            app.ChooseSimulationDropDown.Items = {'-----', 'Option 1', 'Option 2', 'Option 3', 'Option 4'};
+            app.ChooseSimulationDropDown.ValueChangedFcn = createCallbackFcn(app, @ChooseSimulationDropDownValueChanged, true);
+            app.ChooseSimulationDropDown.Position = [62 553 100 22];
+            app.ChooseSimulationDropDown.Value = '-----';
 
             % Create RightPanel
             app.RightPanel = uipanel(app.GridLayout);
@@ -401,7 +450,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.placeholderLabel.FontSize = 11;
             app.placeholderLabel.Visible = 'off';
             app.placeholderLabel.Position = [10 6 309 135];
-            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. Drücke auf Start Test-App'; '2. Wähle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drücken '; '(beim Background dasselbe)'; '4. Durch erneutes Drücken auf Start Test-App cleart sich '; 'das Panel'};
+            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. DrÃ¼cke auf Start Test-App'; '2. WÃ¤hle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drÃ¼cken '; '(beim Background dasselbe)'; '4. Durch erneutes DrÃ¼cken auf Start Test-App cleart sich '; 'das Panel'};
 
             % Create KartePanel
             app.KartePanel = uipanel(app.RightPanel);
