@@ -19,7 +19,18 @@ classdef visualization2_exported < matlab.apps.AppBase
         ChooseSimulationDropDownLabel  matlab.ui.control.Label
         ChooseSimulationDropDown       matlab.ui.control.DropDown
         HilfeButton                    matlab.ui.control.Button
-        Label_2                        matlab.ui.control.Label
+        epsilonSlider                  matlab.ui.control.Slider
+        EpsilonGreedyLabel             matlab.ui.control.Label
+        epsilonedit                    matlab.ui.control.NumericEditField
+        rewardedit                     matlab.ui.control.NumericEditField
+        rewardslider                   matlab.ui.control.Slider
+        RewardLabel                    matlab.ui.control.Label
+        discountedit                   matlab.ui.control.NumericEditField
+        discountslider                 matlab.ui.control.Slider
+        DiscountLabel                  matlab.ui.control.Label
+        learningedit                   matlab.ui.control.NumericEditField
+        learningslider                 matlab.ui.control.Slider
+        LearningrateLabel              matlab.ui.control.Label
         RightPanel                     matlab.ui.container.Panel
         SimulatedtimeLabel             matlab.ui.control.Label
         LastactionTextAreaLabel        matlab.ui.control.Label
@@ -37,6 +48,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
     
     properties (Access = public)
+        gx;
         map;
         text;
         plotTest;
@@ -77,6 +89,25 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.map.CS_List = app.map.CS_List([1:app.plottedCUs-1, app.plottedCUs+1:end]);
             app.plottedCUs = app.plottedCUs - 1;
             end
+        end
+        function runconf(app)
+            config;
+            epsilon = conf.eps;
+            app.epsilonedit.Value = epsilon;
+            app.epsilonSlider.Value = epsilon;
+            
+            reward = conf.eta;
+            app.rewardedit.Value = reward;
+            app.rewardslider.Value = reward;
+            
+            discount = conf.gamma;
+            app.discountedit.Value = discount;
+            app.discountslider.Value = discount;
+            
+            learning = conf.alpha;
+            app.learningedit.Value = learning;
+            app.learningslider.Value = learning;
+            
         end
     end
 %     % Value changed function: DropDown
@@ -273,6 +304,9 @@ classdef visualization2_exported < matlab.apps.AppBase
             end
             disp(ausgabe);
             app.LastactionTextArea.Value = ausgabe;
+            if (app.countStart == 0)
+                app.runconf();
+            end
         end
 
         % Button pushed function: StartselectedSimulationButton
@@ -286,11 +320,68 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.gx = app.UIAxes;
             hold(app.gx,'on')
             app.countStart = app.countStart +1 ;
+            %main(app);
         end
 
         % Button pushed function: HilfeButton
         function HilfeButtonPushed(app, event)
             helpmenu
+        end
+
+        % Value changed function: epsilonedit
+        function epsiloneditValueChanged(app, event)
+            value = app.epsilonedit.Value;
+            app.epsilonSlider.Value = value;
+            conf.eps = value;
+        end
+
+        % Value changed function: epsilonSlider
+        function epsilonSliderValueChanged(app, event)
+            value = app.epsilonSlider.Value;
+            app.epsilonedit.Value = value;
+            conf.eps = value;
+        end
+
+        % Value changed function: rewardslider
+        function rewardsliderValueChanged(app, event)
+            value = app.rewardslider.Value;
+            app.rewardedit.Value = value;
+            conf.eta = value;
+        end
+
+        % Value changed function: rewardedit
+        function rewardeditValueChanged(app, event)
+            value = app.rewardedit.Value;
+            app.rewardslider.Value = value;
+            conf.eta = value;
+        end
+
+        % Value changed function: discountslider
+        function discountsliderValueChanged(app, event)
+            value = app.discountslider.Value;
+            app.discountedit.Value = value;
+            conf.gamma = value;
+        end
+
+        % Value changed function: discountedit
+        function discounteditValueChanged(app, event)
+            value = app.discountedit.Value;
+            app.discountslider.Value = value;
+            conf.gamma = value;
+        end
+
+        % Value changed function: learningslider
+        function learningsliderValueChanged(app, event)
+            value = app.learningslider.Value;
+            app.learningedit.Value = value;
+            conf.alpha = value;
+        end
+
+        % Value changed function: learningedit
+        function learningeditValueChanged(app, event)
+            value = app.learningedit.Value;
+            app.learningslider.Value = value;
+            conf.alpha = value;
         end
 
         % Changes arrangement of the app based on UIFigure width
@@ -434,10 +525,73 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.HilfeButton.Position = [143 83 64 22];
             app.HilfeButton.Text = 'Hilfe';
 
-            % Create Label_2
-            app.Label_2 = uilabel(app.LeftPanel);
-            app.Label_2.Position = [11 180 200 320];
-            app.Label_2.Text = '';
+            % Create epsilonSlider
+            app.epsilonSlider = uislider(app.LeftPanel);
+            app.epsilonSlider.Limits = [0 1];
+            app.epsilonSlider.ValueChangedFcn = createCallbackFcn(app, @epsilonSliderValueChanged, true);
+            app.epsilonSlider.FontSize = 8;
+            app.epsilonSlider.Position = [23 482 100 3];
+
+            % Create EpsilonGreedyLabel
+            app.EpsilonGreedyLabel = uilabel(app.LeftPanel);
+            app.EpsilonGreedyLabel.Position = [29 484 88 22];
+            app.EpsilonGreedyLabel.Text = 'Epsilon Greedy';
+
+            % Create epsilonedit
+            app.epsilonedit = uieditfield(app.LeftPanel, 'numeric');
+            app.epsilonedit.ValueChangedFcn = createCallbackFcn(app, @epsiloneditValueChanged, true);
+            app.epsilonedit.Position = [143 472 61 22];
+
+            % Create rewardedit
+            app.rewardedit = uieditfield(app.LeftPanel, 'numeric');
+            app.rewardedit.ValueChangedFcn = createCallbackFcn(app, @rewardeditValueChanged, true);
+            app.rewardedit.Position = [144 424 61 22];
+
+            % Create rewardslider
+            app.rewardslider = uislider(app.LeftPanel);
+            app.rewardslider.Limits = [0 1];
+            app.rewardslider.ValueChangedFcn = createCallbackFcn(app, @rewardsliderValueChanged, true);
+            app.rewardslider.FontSize = 8;
+            app.rewardslider.Position = [24 434 100 3];
+
+            % Create RewardLabel
+            app.RewardLabel = uilabel(app.LeftPanel);
+            app.RewardLabel.Position = [30 436 47 22];
+            app.RewardLabel.Text = 'Reward';
+
+            % Create discountedit
+            app.discountedit = uieditfield(app.LeftPanel, 'numeric');
+            app.discountedit.ValueChangedFcn = createCallbackFcn(app, @discounteditValueChanged, true);
+            app.discountedit.Position = [144 366 61 22];
+
+            % Create discountslider
+            app.discountslider = uislider(app.LeftPanel);
+            app.discountslider.Limits = [0 1];
+            app.discountslider.ValueChangedFcn = createCallbackFcn(app, @discountsliderValueChanged, true);
+            app.discountslider.FontSize = 8;
+            app.discountslider.Position = [24 376 100 3];
+
+            % Create DiscountLabel
+            app.DiscountLabel = uilabel(app.LeftPanel);
+            app.DiscountLabel.Position = [30 378 52 22];
+            app.DiscountLabel.Text = 'Discount';
+
+            % Create learningedit
+            app.learningedit = uieditfield(app.LeftPanel, 'numeric');
+            app.learningedit.ValueChangedFcn = createCallbackFcn(app, @learningeditValueChanged, true);
+            app.learningedit.Position = [144 303 61 22];
+
+            % Create learningslider
+            app.learningslider = uislider(app.LeftPanel);
+            app.learningslider.Limits = [0 1];
+            app.learningslider.ValueChangedFcn = createCallbackFcn(app, @learningsliderValueChanged, true);
+            app.learningslider.FontSize = 8;
+            app.learningslider.Position = [24 313 100 3];
+
+            % Create LearningrateLabel
+            app.LearningrateLabel = uilabel(app.LeftPanel);
+            app.LearningrateLabel.Position = [30 315 76 22];
+            app.LearningrateLabel.Text = 'Learning rate';
 
             % Create RightPanel
             app.RightPanel = uipanel(app.GridLayout);
