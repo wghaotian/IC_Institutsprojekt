@@ -73,7 +73,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.plottedCUList = [app.plottedCUList app.map.CS_List(i).plotCS(app.UIAxes)];
             end
         end
-    %% Funktionen zum Deplotten und löschen aller BaseStations und Consumer
+    %% Funktionen zum Deplotten und lÃ¶schen aller BaseStations und Consumer
         function deplotBSs(app)
             for i = 1:app.map.BS_List.size
             delete(app.plottedBSList(app.plottedCUs));
@@ -164,7 +164,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             value = app.TestSceneDropDown.Value;
             config;
             if (app.countStart == 0)
-                app.text = "Drücke zuerst auf den Start Knopf!";
+                app.text = "DrÃ¼cke zuerst auf den Start Knopf!";
             elseif (value == '2' )
                 % Add background
                 imshow('map_background.png','Parent',app.UIAxes);
@@ -320,7 +320,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.gx = app.UIAxes;
             hold(app.gx,'on')
             app.countStart = app.countStart +1 ;
-            %main(app);
+            main(app);
         end
 
         % Button pushed function: HilfeButton
@@ -467,14 +467,14 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.Label = uilabel(app.LeftPanel);
             app.Label.FontSize = 7.9;
             app.Label.Position = [105 11 115 31];
-            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till Müller'};
+            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till MÃ¼ller'};
 
             % Create Label2
             app.Label2 = uilabel(app.LeftPanel);
             app.Label2.FontSize = 8;
             app.Label2.FontWeight = 'bold';
             app.Label2.Position = [17 37 203 42];
-            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
+            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen fÃ¼r adaptive Schlafmodi '; 'in 5G-Netzen'};
 
             % Create StartTestAppButton
             app.StartTestAppButton = uibutton(app.LeftPanel, 'push');
@@ -624,7 +624,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.placeholderLabel.FontSize = 11;
             app.placeholderLabel.Visible = 'off';
             app.placeholderLabel.Position = [10 6 309 135];
-            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. Drücke auf Start Test-App'; '2. Wähle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drücken '; '(beim Background dasselbe)'; '4. Durch erneutes Drücken auf Start Test-App cleart sich '; 'das Panel'};
+            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. DrÃ¼cke auf Start Test-App'; '2. WÃ¤hle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drÃ¼cken '; '(beim Background dasselbe)'; '4. Durch erneutes DrÃ¼cken auf Start Test-App cleart sich '; 'das Panel'};
 
             % Create KartePanel
             app.KartePanel = uipanel(app.RightPanel);

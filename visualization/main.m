@@ -18,5 +18,27 @@ function main(app)
         karte.eventList=pop(karte.eventList);
         time=min_evnt.time;
         karte=karte.simulate(min_evnt);
+        app.EditField.Value = time;
+        
+        %% Zu Testzwecken werden (erstmal alle Plots entfernt und neu erstellt)
+        app.deplotBSs();
+        app.deplotCSs();
+        app.plotBSs(karte);
+        app.plotCSs(karte);
+        
+        
+        value = app.ONButton.Value;
+            if (value == 0)
+                disp("Simulation temporär pausiert");
+                app.LastactionTextArea.Value = "Simulation temporär pausiert";
+                while (value == 0)
+                    pause(1);
+                end
+                disp("Simulation fortgesetzt.");
+                app.LastactionTextArea.Value = "Simulation fortgesetzt.";
+            end
+        
     end
+    disp("Simulation nach " + time + "ms beendet.");
+    app.LastactionTextArea.Value = "Simulation nach " + time + "ms beendet.";
 end
