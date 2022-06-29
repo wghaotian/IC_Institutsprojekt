@@ -4,6 +4,9 @@ classdef Consumer < SimulationsObject
         v=[0,0];
         spawn_time=0;
         cur_BS_ind=0;
+        leave_time=inf;
+        last_obs=0;
+        cur_data_rate=0;
     end
        
     methods
@@ -13,6 +16,7 @@ classdef Consumer < SimulationsObject
             obj.data_demand=dmd;
             obj.v=[vx,vy];
             obj.spawn_time=arr_t;
+            obj.last_obs=obj.spawn_time;
         end
   %% set speed      
         function obj=setSpeed(obj,vx,vy)
@@ -38,11 +42,27 @@ classdef Consumer < SimulationsObject
                      
              end
          end
-         
-%% Plotting function
-        function plotted = plotCS(obj,axis)
-            plotted = plot(axis,obj.pos(1), obj.pos(2),'bo','MarkerSize',8);
-        end
+         %% Observe
+         function [obj,map]=observe(obj,map,time)
+             new_evnt.type='Map';
+             new_evnt.name='Obs';
+             new_evnt.ind=0;
+             if (obj.data_demand<0)
+                 map.served_List=[map.served_List,obj.ind];
+                 map.BS_List(obj.cur_BS_ind).serveList(map.BS_List(obj.cur_BS_ind).serveList==obj.ind)=[];
+                 return;
+             end
+             obj.data_demand=obj.data_demand-(time-obj.last_obs)*obj.cur_data_rate;
+             obj.cur_data_rate=map.data_rate(obj.cur_BS_ind, obj.ind);
+             obj.last_obs=time;
+             global conf;
+             obj.leave_time=time+max(conf.eps,obj.data_demand/obj.cur_data_rate);
+             new_evnt.time=obj.leave_time;
+             map.eventList=push(map.eventList,new_evnt);
+         end
     end
+    
+    
+    
     
 end

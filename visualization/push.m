@@ -1,5 +1,10 @@
 function [heap] = push(heap,x)
-
+    global conf;
+    if (~isempty(heap))
+        if (heap(1).type(1)=='M' && x.type(1)=='M' && abs(heap(1).time-x.time)<conf.eps)
+            return;
+        end
+    end
     heap=[heap,x];
     cur=size(heap,2);
     fa=floor((cur)/2);

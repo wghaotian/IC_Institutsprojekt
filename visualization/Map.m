@@ -8,6 +8,8 @@ classdef Map
 %         BS_eventList=[] % Basestation Event List
 %         CS_eventList=[] % Consumer Event List
         eventList=[] % Event List
+        served_List % Served Consumer List
+        last_obs=0;
     end
     
     methods
@@ -15,6 +17,7 @@ classdef Map
             %Map Construct an instance of this class
             obj.BS_List=BaseStation.empty;
             obj.CS_List=Consumer.empty;
+            obj.served_List=[];
             obj.map_size=[x,y];
             obj.total_Time=total_Time;
         end
@@ -54,8 +57,9 @@ classdef Map
             x=rand()*obj.map_size(1);
             y=rand()*obj.map_size(2);
             nameCS=['CS ',num2str(size(obj.CS_List,2)+1)];
-            arr_t=rand()*obj.total_Time; % to be fixed
             global conf;
+            %arr_t=lognrnd(conf.lamda_arr,conf.nu);
+            arr_t=rand*obj.total_Time;
             data=wblrnd(conf.lamda_scale,conf.k_shape)*1048576;
             evnt.time=arr_t;
             evnt.name='arrive';
@@ -100,13 +104,28 @@ classdef Map
         end
         
         function obj=simulate(obj,evnt)
+            global conf;
             if strcmp(evnt.type,'CS')
                 [obj.CS_List(evnt.ind),obj]=obj.CS_List(evnt.ind).simulate(evnt,obj);
-            else
+            elseif strcmp(evnt.type,'BS')
                 [obj.BS_List(evnt.ind),obj]=obj.BS_List(evnt.ind).simulate(evnt,obj);
+            else
+                if (abs(obj.last_obs-evnt.time)<conf.eps)
+                    return;
+                end
+                obj.last_obs=evnt.time;
+                for I=(1:length(obj.BS_List))
+                    [obj.BS_List(I),obj]=obj.BS_List(I).observe(obj,evnt.time);
+                end
             end
         end
-       
+        
+          %% Plotting function    
+        function plotCU(obj,axis)
+            xy = obj.pos;
+            plot(axis,xy(1), xy(2),'bo','MarkerSize',8);
+        end
+        
     end
 end
 
