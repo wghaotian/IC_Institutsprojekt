@@ -31,6 +31,7 @@ classdef visualization2_exported < matlab.apps.AppBase
         learningedit                   matlab.ui.control.NumericEditField
         learningslider                 matlab.ui.control.Slider
         LearningrateLabel              matlab.ui.control.Label
+        TestKnopfnichtbeachtenButton   matlab.ui.control.Button
         RightPanel                     matlab.ui.container.Panel
         SimulatedtimeLabel             matlab.ui.control.Label
         LastactionTextAreaLabel        matlab.ui.control.Label
@@ -61,34 +62,41 @@ classdef visualization2_exported < matlab.apps.AppBase
     
     %% Funktionen zum Plotten aller BaseStations und Consumer
     methods (Access = public)
-        function plotBSs(app)
-            for i = 1:app.map.BS_List.size
-            app.plottedBSs = app.plottedBSs + 1;
-            app.plottedBSList = [app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes)];
+        function plots = plotBSs(app)
+            size = length(app.map.BS_List);
+            for i = 1:size
+                app.plottedBSs = app.plottedBSs + 1;
+                plots = struct([app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes)]);
+                app.map.BS_List(i).plotBS(app.UIAxes);
             end         
         end
-        function plotCSs(app)
-            for i = 1:app.map.CS_List.size
-            app.plottedCUs = app.plottedCUs + 1;
-            app.plottedCUList = [app.plottedCUList app.map.CS_List(i).plotCS(app.UIAxes)];
+        function plots = plotCSs(app)
+            size = length(app.map.CS_List);
+            for i = 1:size
+                app.plottedCUs = app.plottedCUs + 1;
+                plots = struct([app.plottedCUList,app.map.CS_List(i).plotCS(app.UIAxes)]);
             end
         end
-    %% Funktionen zum Deplotten und lÃ¶schen aller BaseStations und Consumer
+    %% Funktionen zum Deplotten und löschen aller BaseStations und Consumer
         function deplotBSs(app)
-            for i = 1:app.map.BS_List.size
-            delete(app.plottedBSList(app.plottedCUs));
-            app.plottedBSList = app.plottedBSList([1:app.plottedBSs-1, app.plottedBSs+1:end]);
-            app.map.BS_List = app.map.BS_List([1:app.plottedBSs-1, app.plottedBSs+1:end]);
-            app.plottedBSs = app.plottedBSs - 1;
-            end         
+%             for i = 1:app.map.BS_List.size
+%             delete(app.plottedBSList(app.plottedCUs));
+%             app.plottedBSList = app.plottedBSList([1:app.plottedBSs-1, app.plottedBSs+1:end]);
+%             app.map.BS_List = app.map.BS_List([1:app.plottedBSs-1, app.plottedBSs+1:end]);
+%             app.plottedBSs = app.plottedBSs - 1;
+%             end         
+            delete(app.plottedBSList);
+            app.plottedBSs = 0;
         end
         function deplotCSs(app)
-            for i = 1:app.map.CS_List.size
-            delete(app.plottedCUList(app.plottedCUs));
-            app.plottedCUList = app.plottedCUList([1:app.plottedCUs-1, app.plottedCUs+1:end]);
-            app.map.CS_List = app.map.CS_List([1:app.plottedCUs-1, app.plottedCUs+1:end]);
-            app.plottedCUs = app.plottedCUs - 1;
-            end
+%             for i = 1:app.map.CS_List.size
+%             delete(app.plottedCUList(app.plottedCUs));
+%             app.plottedCUList = app.plottedCUList([1:app.plottedCUs-1, app.plottedCUs+1:end]);
+%             app.map.CS_List = app.map.CS_List([1:app.plottedCUs-1, app.plottedCUs+1:end]);
+%             app.plottedCUs = app.plottedCUs - 1;
+%             end
+            delete(app.plottedBSList);
+            app.plottedBSs = 0;
         end
         function runconf(app)
             config;
@@ -108,6 +116,50 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.learningedit.Value = learning;
             app.learningslider.Value = learning;
             
+        end
+        function newmain(app)
+            
+            run('config.m');
+            global conf;
+            app.map=Map(500,500,conf.total_Time);
+            for I=(1:conf.num_Cos)
+                app.map=app.map.add_CS();
+            end
+            app.map=app.map.add_BS(conf.Base_Station_pos);
+            
+            CS_spawn_List=app.map.sort_CS_spawn();
+            
+            
+            global time;
+            time=0;
+            while ~(isempty(app.map.eventList))
+                min_evnt=app.map.eventList(1);
+                app.map.eventList=pop(app.map.eventList);
+                time=min_evnt.time;
+                app.map=app.map.simulate(min_evnt);
+                app.EditField.Value = time;
+            
+                %% Zu Testzwecken werden (erstmal alle Plots entfernt und neu erstellt)
+                deplotBSs(app);
+                deplotCSs(app);
+                plotBSs(app);
+                plotCSs(app);
+            
+            
+                value = app.ONButton.Value;
+                    if (value == 0)
+                        disp("Simulation temporär pausiert");
+                        app.LastactionTextArea.Value = "Simulation temporär pausiert";
+                        while (value == 0)
+                            pause(1);
+                        end
+                        disp("Simulation fortgesetzt.");
+                        app.LastactionTextArea.Value = "Simulation fortgesetzt.";
+                    end
+            
+            end
+            disp("Simulation nach " + time + "ms beendet.");
+            app.LastactionTextArea.Value = "Simulation nach " + time + "ms beendet.";
         end
     end
 %     % Value changed function: DropDown
@@ -164,7 +216,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             value = app.TestSceneDropDown.Value;
             config;
             if (app.countStart == 0)
-                app.text = "DrÃ¼cke zuerst auf den Start Knopf!";
+                app.text = "Drücke zuerst auf den Start Knopf!";
             elseif (value == '2' )
                 % Add background
                 imshow('map_background.png','Parent',app.UIAxes);
@@ -320,7 +372,8 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.gx = app.UIAxes;
             hold(app.gx,'on')
             app.countStart = app.countStart +1 ;
-            main(app);
+%             main(app);
+            app.newmain;
         end
 
         % Button pushed function: HilfeButton
@@ -382,6 +435,11 @@ classdef visualization2_exported < matlab.apps.AppBase
             value = app.learningedit.Value;
             app.learningslider.Value = value;
             conf.alpha = value;
+        end
+
+        % Button pushed function: TestKnopfnichtbeachtenButton
+        function TestKnopfnichtbeachtenButtonPushed(app, event)
+            nargout(app.plotBSs);
         end
 
         % Changes arrangement of the app based on UIFigure width
@@ -467,14 +525,14 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.Label = uilabel(app.LeftPanel);
             app.Label.FontSize = 7.9;
             app.Label.Position = [105 11 115 31];
-            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till MÃ¼ller'};
+            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till Müller'};
 
             % Create Label2
             app.Label2 = uilabel(app.LeftPanel);
             app.Label2.FontSize = 8;
             app.Label2.FontWeight = 'bold';
             app.Label2.Position = [17 37 203 42];
-            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen fÃ¼r adaptive Schlafmodi '; 'in 5G-Netzen'};
+            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
 
             % Create StartTestAppButton
             app.StartTestAppButton = uibutton(app.LeftPanel, 'push');
@@ -512,7 +570,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create ChooseSimulationDropDown
             app.ChooseSimulationDropDown = uidropdown(app.LeftPanel);
-            app.ChooseSimulationDropDown.Items = {'-----', 'Option 1', 'Option 2', 'Option 3', 'Option 4'};
+            app.ChooseSimulationDropDown.Items = {'-----', 'Main', 'Option 2', 'Option 3', 'Option 4'};
             app.ChooseSimulationDropDown.ValueChangedFcn = createCallbackFcn(app, @ChooseSimulationDropDownValueChanged, true);
             app.ChooseSimulationDropDown.Position = [62 553 100 22];
             app.ChooseSimulationDropDown.Value = '-----';
@@ -593,6 +651,12 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.LearningrateLabel.Position = [30 315 76 22];
             app.LearningrateLabel.Text = 'Learning rate';
 
+            % Create TestKnopfnichtbeachtenButton
+            app.TestKnopfnichtbeachtenButton = uibutton(app.LeftPanel, 'push');
+            app.TestKnopfnichtbeachtenButton.ButtonPushedFcn = createCallbackFcn(app, @TestKnopfnichtbeachtenButtonPushed, true);
+            app.TestKnopfnichtbeachtenButton.Position = [30.5 192 153 22];
+            app.TestKnopfnichtbeachtenButton.Text = 'Test Knopf nicht beachten';
+
             % Create RightPanel
             app.RightPanel = uipanel(app.GridLayout);
             app.RightPanel.Layout.Row = 1;
@@ -624,7 +688,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.placeholderLabel.FontSize = 11;
             app.placeholderLabel.Visible = 'off';
             app.placeholderLabel.Position = [10 6 309 135];
-            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. DrÃ¼cke auf Start Test-App'; '2. WÃ¤hle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drÃ¼cken '; '(beim Background dasselbe)'; '4. Durch erneutes DrÃ¼cken auf Start Test-App cleart sich '; 'das Panel'};
+            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. Drücke auf Start Test-App'; '2. Wähle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drücken '; '(beim Background dasselbe)'; '4. Durch erneutes Drücken auf Start Test-App cleart sich '; 'das Panel'};
 
             % Create KartePanel
             app.KartePanel = uipanel(app.RightPanel);

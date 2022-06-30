@@ -10,6 +10,10 @@ classdef Consumer < SimulationsObject
     end
        
     methods
+        %% Plotting function
+        function plotted = plotCS(obj,axis)
+            plotted = plot(axis,obj.pos(1), obj.pos(2),'bo','MarkerSize',8);
+        end
   %% Constructor
         function obj=Consumer(x,y,name,dmd,vx,vy,arr_t,id)
             obj@SimulationsObject(x,y,name,id);

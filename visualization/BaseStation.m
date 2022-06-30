@@ -12,6 +12,19 @@ classdef BaseStation < SimulationsObject
        log;
    end
    methods
+        %% Plotting function    
+        function plotted = plotBS(obj,axis)
+            xy = obj.pos;
+            BSplot = plot(axis,xy(1), xy(2), 'rx','MarkerSize',10);
+            if(obj.sleepMode > 0)
+                onoffplot = plot(axis,xy(1)+16, xy(2)+8, 'g.','MarkerSize',10);
+            else
+                onoffplot = plot(axis,xy(1)+16, xy(2)+8, 'r.','MarkerSize',10);
+            end
+            sleepmode = "SM " + obj.sleepMode + "";
+            statusplot = text(axis,xy(1)+12,xy(2)-8,sleepmode,'Color',[.7 .7 .7],'FontSize',8);
+            plotted = [BSplot onoffplot statusplot];
+        end
        %% Constructor
        function BS=BaseStation(x,y,name,Mode,id)
            BS@SimulationsObject(x,y,name,id);
@@ -227,11 +240,7 @@ classdef BaseStation < SimulationsObject
           end
           
       end
-              %% Plotting function    
-        function plotBS(obj,axis)
-            xy = obj.pos;
-            plot(axis,xy(1), xy(2), 'rx','MarkerSize',10);
-        end
+              
        
    end
 end

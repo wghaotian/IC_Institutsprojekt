@@ -1,8 +1,8 @@
 classdef Map
     
     properties
-        BS_List % Base Station List
-        CS_List % Consumer List
+        BS_List = struct;% Base Station List
+        CS_List = struct; % Consumer List
         map_size % [x,y] Map Size
         total_Time % total time 
 %         BS_eventList=[] % Basestation Event List
