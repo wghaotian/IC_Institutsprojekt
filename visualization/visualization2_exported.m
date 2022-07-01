@@ -62,6 +62,8 @@ classdef visualization2_exported < matlab.apps.AppBase
         nextplottime = 0;
         plottedCUList;
         plottedBSList;
+        xSize = 0;
+        ySize = 0;
     end
     
     %% Funktionen zum Plotten aller BaseStations und Consumer
@@ -70,7 +72,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             size = length(app.map.BS_List);
             for i = 1:size
                 app.plottedBSs = app.plottedBSs + 1;
-                app.plottedBSList = [app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes)];
+                app.plottedBSList = [app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes,app)];
             end         
         end
         function plotCSs(app)
@@ -162,6 +164,8 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.map=Map(500,500,conf.total_Time);
             
             app.UIAxes.XLimMode = 'manual';
+            app.xSize = app.map.map_size(1);
+            app.ySize = app.map.map_size(2);
             app.UIAxes.XLim = [0,app.map.map_size(1)];
             app.UIAxes.YLim = [0,app.map.map_size(2)];
             
@@ -282,6 +286,8 @@ classdef visualization2_exported < matlab.apps.AppBase
             elseif (value == '3' )
                 % Add map
                 app.map = Map(1200,750,10000);
+                app.xSize = app.map.map_size(1);
+                app.ySize = app.map.map_size(2);
                 app.UIAxes.XLimMode = 'manual';
                 app.UIAxes.XLim = [0,app.map.map_size(1)];
                 app.UIAxes.YLim = [0,app.map.map_size(2)];
@@ -289,14 +295,14 @@ classdef visualization2_exported < matlab.apps.AppBase
             elseif (value == '4' )
                 % Add BS
                 app.map = app.map.add_BS([400,250]);
-                app.map.BS_List(1).plotBS(app.UIAxes);
+                app.map.BS_List(1).plotBS(app.UIAxes,app);
 %                plot(app.UIAxes,400, 250, 'rx','MarkerSize',10);
                 app.text = "Basestation at the position [400,250] has been created.";
             elseif (value == '8' )
                 % Add BS
                 app.map = app.map.add_BS([250,400]);
                 app.map.BS_List(2).setSleep(0);
-                app.map.BS_List(2).plotBS(app.UIAxes);
+                app.map.BS_List(2).plotBS(app.UIAxes,app);
                 app.text = "Basestation at the position [250,400] has been created.";
             elseif (value == '5' )
                 % Add CU
