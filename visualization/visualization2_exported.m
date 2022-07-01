@@ -31,7 +31,6 @@ classdef visualization2_exported < matlab.apps.AppBase
         learningedit                   matlab.ui.control.NumericEditField
         learningslider                 matlab.ui.control.Slider
         LearningrateLabel              matlab.ui.control.Label
-        TestKnopfnichtbeachtenButton   matlab.ui.control.Button
         RightPanel                     matlab.ui.container.Panel
         SimulatedtimeLabel             matlab.ui.control.Label
         LastactionTextAreaLabel        matlab.ui.control.Label
@@ -40,6 +39,10 @@ classdef visualization2_exported < matlab.apps.AppBase
         placeholderLabel               matlab.ui.control.Label
         KartePanel                     matlab.ui.container.Panel
         UIAxes                         matlab.ui.control.UIAxes
+        NumberofBSLabel                matlab.ui.control.Label
+        numberBS                       matlab.ui.control.NumericEditField
+        NumberofCSLabel                matlab.ui.control.Label
+        numberCS                       matlab.ui.control.NumericEditField
     end
 
     % Properties that correspond to apps with auto-reflow
@@ -56,46 +59,81 @@ classdef visualization2_exported < matlab.apps.AppBase
         countStart = 0;
         plottedBSs = 0;
         plottedCUs = 0;
+        nextplottime = 0;
         plottedCUList;
         plottedBSList;
     end
     
     %% Funktionen zum Plotten aller BaseStations und Consumer
     methods (Access = public)
-        function plots = plotBSs(app)
+        function plotBSs(app)
             size = length(app.map.BS_List);
             for i = 1:size
                 app.plottedBSs = app.plottedBSs + 1;
-                plots = struct([app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes)]);
-                app.map.BS_List(i).plotBS(app.UIAxes);
+                app.plottedBSList = [app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes)];
             end         
         end
-        function plots = plotCSs(app)
+        function plotCSs(app)
             size = length(app.map.CS_List);
             for i = 1:size
                 app.plottedCUs = app.plottedCUs + 1;
-                plots = struct([app.plottedCUList,app.map.CS_List(i).plotCS(app.UIAxes)]);
+                app.plottedCUList = [app.plottedCUList app.map.CS_List(i).plotCS(app.UIAxes)];
             end
         end
     %% Funktionen zum Deplotten und löschen aller BaseStations und Consumer
         function deplotBSs(app)
-%             for i = 1:app.map.BS_List.size
-%             delete(app.plottedBSList(app.plottedCUs));
-%             app.plottedBSList = app.plottedBSList([1:app.plottedBSs-1, app.plottedBSs+1:end]);
-%             app.map.BS_List = app.map.BS_List([1:app.plottedBSs-1, app.plottedBSs+1:end]);
-%             app.plottedBSs = app.plottedBSs - 1;
-%             end         
-            delete(app.plottedBSList);
+             pause(0.001);
+%             thesize = size(app.map.BS_List);
+%             for i = (1:thesize(1))
+%                 ende = thesize(1)-i+1;
+%                 delete(app.plottedBSList(ende));
+%                 app.plottedBSList = app.plottedBSList([1:(max(1,ende-1))]);
+%                 app.plottedBSs = app.plottedBSs - 1;
+%             end   
+%             for i = (1:thesize(2))
+%                 ende = thesize(2)-i+1;
+%                 delete(app.plottedBSList(ende));
+%                 app.plottedBSList = app.plottedBSList([1:(max(1,ende-1))]);
+%                 app.plottedBSs = app.plottedBSs - 1;
+%             end
+%              delete(app.plottedBSList);
+%              app.plottedBSList
+            i = length(app.map.BS_List);
+            while (i > 0)
+                if(i>1)
+                    delete(app.plottedBSList(i));
+%                     app.plottedCUList = app.plottedCUList(i,:);
+                else
+                    delete(app.plottedBSList);
+                    app.plottedBSList = [];
+                end
+                i = i-1;
+%                 app.plottedCSs = app.plottedCSs - 1;
+            end
             app.plottedBSs = 0;
         end
         function deplotCSs(app)
-%             for i = 1:app.map.CS_List.size
-%             delete(app.plottedCUList(app.plottedCUs));
-%             app.plottedCUList = app.plottedCUList([1:app.plottedCUs-1, app.plottedCUs+1:end]);
+            pause(0.001);
+            i = length(app.map.CS_List);
+            while (i > 0)
+                if(i>1)
+                    delete(app.plottedCUList(i));
+%                     app.plottedCUList = app.plottedCUList(i,:);
+                else
+                    delete(app.plottedCUList);
+                    app.plottedCUList = [];
+                end
+                i = i-1;
+%                 app.plottedCSs = app.plottedCSs - 1;
+            end
+%             for i = 1:length(app.map.CS_List)
+%             delete(app.plottedCUList(length(app.map.CS_List)-i+1));
+%             app.plottedCUList = app.plottedCUList([1:app.plottedCUs-1,min(length(app.plottedCUs),app.plottedCUs+1):end]);
 %             app.map.CS_List = app.map.CS_List([1:app.plottedCUs-1, app.plottedCUs+1:end]);
 %             app.plottedCUs = app.plottedCUs - 1;
 %             end
-            delete(app.plottedBSList);
+%             delete(app.plottedCUList);
+            pause(0.001);
             app.plottedBSs = 0;
         end
         function runconf(app)
@@ -122,6 +160,11 @@ classdef visualization2_exported < matlab.apps.AppBase
             run('config.m');
             global conf;
             app.map=Map(500,500,conf.total_Time);
+            
+            app.UIAxes.XLimMode = 'manual';
+            app.UIAxes.XLim = [0,app.map.map_size(1)];
+            app.UIAxes.YLim = [0,app.map.map_size(2)];
+            
             for I=(1:conf.num_Cos)
                 app.map=app.map.add_CS();
             end
@@ -137,29 +180,44 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.map.eventList=pop(app.map.eventList);
                 time=min_evnt.time;
                 app.map=app.map.simulate(min_evnt);
-                app.EditField.Value = time;
-            
-                %% Zu Testzwecken werden (erstmal alle Plots entfernt und neu erstellt)
-                deplotBSs(app);
-                deplotCSs(app);
-                plotBSs(app);
-                plotCSs(app);
-            
-            
-                value = app.ONButton.Value;
-                    if (value == 0)
-                        disp("Simulation temporär pausiert");
-                        app.LastactionTextArea.Value = "Simulation temporär pausiert";
-                        while (value == 0)
-                            pause(1);
-                        end
-                        disp("Simulation fortgesetzt.");
-                        app.LastactionTextArea.Value = "Simulation fortgesetzt.";
-                    end
+                pause(0.001);
+                app.guisimulation(time);
             
             end
+            plotBSs(app);
+            plotCSs(app);
+            pause(3);
+%             deplotBSs(app);
+%             deplotCSs(app); 
             disp("Simulation nach " + time + "ms beendet.");
             app.LastactionTextArea.Value = "Simulation nach " + time + "ms beendet.";
+        end
+        
+        function guisimulation(app,time)
+            app.EditField.Value = time;
+            app.numberCS.Value = length(app.map.CS_List);
+            app.numberBS.Value = length(app.map.BS_List);
+            
+            if(time>app.nextplottime)
+                %% Zu Testzwecken werden (erstmal alle Plots entfernt und neu erstellt)
+                if (~(~isempty(app.map.CS_List)))
+                   deplotCSs(app);
+                end
+                deplotBSs(app);
+                plotBSs(app);
+                plotCSs(app);
+                app.nextplottime = app.nextplottime + 30;
+            end
+            value = app.ONButton.Value;
+            if (value == 0)
+                disp("Simulation temporär pausiert");
+                app.LastactionTextArea.Value = "Simulation temporär pausiert";
+                while (app.ONButton.Value == 0)
+                    pause(1);
+                end
+                disp("Simulation fortgesetzt.");
+                app.LastactionTextArea.Value = "Simulation fortgesetzt.";
+            end
         end
     end
 %     % Value changed function: DropDown
@@ -437,7 +495,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             conf.alpha = value;
         end
 
-        % Button pushed function: TestKnopfnichtbeachtenButton
+        % Callback function
         function TestKnopfnichtbeachtenButtonPushed(app, event)
             nargout(app.plotBSs);
         end
@@ -651,12 +709,6 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.LearningrateLabel.Position = [30 315 76 22];
             app.LearningrateLabel.Text = 'Learning rate';
 
-            % Create TestKnopfnichtbeachtenButton
-            app.TestKnopfnichtbeachtenButton = uibutton(app.LeftPanel, 'push');
-            app.TestKnopfnichtbeachtenButton.ButtonPushedFcn = createCallbackFcn(app, @TestKnopfnichtbeachtenButtonPushed, true);
-            app.TestKnopfnichtbeachtenButton.Position = [30.5 192 153 22];
-            app.TestKnopfnichtbeachtenButton.Text = 'Test Knopf nicht beachten';
-
             % Create RightPanel
             app.RightPanel = uipanel(app.GridLayout);
             app.RightPanel.Layout.Row = 1;
@@ -664,7 +716,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create SimulatedtimeLabel
             app.SimulatedtimeLabel = uilabel(app.RightPanel);
-            app.SimulatedtimeLabel.Position = [98 83 88 22];
+            app.SimulatedtimeLabel.Position = [107 93 88 22];
             app.SimulatedtimeLabel.Text = 'Simulated time:';
 
             % Create LastactionTextAreaLabel
@@ -681,7 +733,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.EditField = uieditfield(app.RightPanel, 'numeric');
             app.EditField.ValueDisplayFormat = '%11.4g ns';
             app.EditField.Editable = 'off';
-            app.EditField.Position = [98 62 88 22];
+            app.EditField.Position = [107 72 88 22];
 
             % Create placeholderLabel
             app.placeholderLabel = uilabel(app.RightPanel);
@@ -707,6 +759,26 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.UIAxes.XColor = [0.15 0.15 0.15];
             app.UIAxes.YColor = [0.15 0.15 0.15];
             app.UIAxes.Position = [1 0 726 525];
+
+            % Create NumberofBSLabel
+            app.NumberofBSLabel = uilabel(app.RightPanel);
+            app.NumberofBSLabel.Position = [11 35 81 22];
+            app.NumberofBSLabel.Text = 'Number of BS';
+
+            % Create numberBS
+            app.numberBS = uieditfield(app.RightPanel, 'numeric');
+            app.numberBS.Editable = 'off';
+            app.numberBS.Position = [11 14 88 22];
+
+            % Create NumberofCSLabel
+            app.NumberofCSLabel = uilabel(app.RightPanel);
+            app.NumberofCSLabel.Position = [132 35 82 22];
+            app.NumberofCSLabel.Text = 'Number of CS';
+
+            % Create numberCS
+            app.numberCS = uieditfield(app.RightPanel, 'numeric');
+            app.numberCS.Editable = 'off';
+            app.numberCS.Position = [132 14 88 22];
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
