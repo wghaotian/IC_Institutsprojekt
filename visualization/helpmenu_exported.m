@@ -31,13 +31,13 @@ classdef helpmenu_exported < matlab.apps.AppBase
             % Create Image
             app.Image = uiimage(app.UIFigure);
             app.Image.Position = [1 36 640 445];
-            app.Image.ImageSource = 'helpmenu.png';
+            app.Image.ImageSource = 'menu-doc.png';
 
             % Create ffnenButton
             app.ffnenButton = uibutton(app.UIFigure, 'push');
             app.ffnenButton.ButtonPushedFcn = createCallbackFcn(app, @ffnenButtonPushed, true);
             app.ffnenButton.Position = [120 7 100 22];
-            app.ffnenButton.Text = 'Ã–ffnen';
+            app.ffnenButton.Text = 'Öffnen';
 
             % Create DokumentationLabel
             app.DokumentationLabel = uilabel(app.UIFigure);
