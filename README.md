@@ -12,21 +12,6 @@ Programmierumgebung: [Matlab R2020a](https://de.mathworks.com/products/new_produ
 
 Verwendete Erweiterungen: (...)
 
-## Code Beispiel (nur um zu zeigen wie man das hier formatiert)
-
-```python
-import foobar
-
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
-```
-
 ## Sonstiges
 
 Projektpräsentation: 13.07.2022 14:30 in den ICT Cubes Raum 333.
