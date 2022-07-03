@@ -5,7 +5,7 @@ classdef BaseStation < SimulationsObject
        bufferList
        chosen_numSleep=zeros(1,4);
        numSleep=zeros(1,4);
-       Q=zeros(4,10); % Index starts from 0!!!!!!
+       Q=zeros(4,1000); % Index starts from 0!!!!!!
        Delay=-1;
        Energy=0;
        time_idle_start;
@@ -16,12 +16,21 @@ classdef BaseStation < SimulationsObject
         function plotted = plotBS(obj,axis,app)
             xy = obj.pos;
             BSplot = plot(axis,xy(1), xy(2), 'rx','MarkerSize',10);
-            if(obj.sleepMode > 0)
-                onoffplot = plot(axis,xy(1)+(16/1200)*app.xSize, xy(2)+(8/750)*app.ySize, 'g.','MarkerSize',10);
+            if(obj.sleepMode > 1)
+%                onoffplot = plot(axis,xy(1)+(16/1200)*app.xSize, xy(2)+(8/750)*app.ySize, 'g.','MarkerSize',10);
+                onoffplot = plot(axis,xy(1), xy(2), 'g.','MarkerSize',10);
             else
-                onoffplot = plot(axis,xy(1)+(16/1200)*app.xSize, xy(2)+(8/750)*app.ySize, 'r.','MarkerSize',10);
+                onoffplot = plot(axis,xy(1), xy(2), 'r.','MarkerSize',10);
             end
-            sleepmode = "SM " + obj.sleepMode + "";
+            switch obj.sleepMode
+                case 0
+                    sleepmode='Active';
+                case 1
+                    sleepmode='idle';
+                otherwise
+                    sleepmode = ["SM " , num2str(obj.sleepMode-1) , ""];
+            end
+            
             statusplot = text(axis,xy(1)+(12/1200)*app.xSize,xy(2)-(8/750)*app.ySize,sleepmode,'Color',[.7 .7 .7],'FontSize',8);
             plotted = [BSplot onoffplot statusplot];
         end
@@ -142,8 +151,10 @@ classdef BaseStation < SimulationsObject
                    
 
                    obj.log.SM_time(prev_SM)=obj.log.SM_time(prev_SM)+new_evnt.time-obj.log.start_time(prev_SM);
-                   obj.Energy=(new_evnt.time-obj.log.start_time(prev_SM))*(conf.pow_cons(1)-conf.pow_cons(prev_SM));
-                   % Update Q Matrix 
+                  % obj.Energy=(new_evnt.time-obj.log.start_time(prev_SM))*(conf.pow_cons(1)-conf.pow_cons(prev_SM));
+                  obj.Energy=(new_evnt.time-obj.log.start_time(prev_SM))*(conf.pow_cons(prev_SM));
+
+                  % Update Q Matrix 
                    if (nxt_SM)
                        R=Reward(obj.Energy,0);
                        obj.Q=Q_update(obj.Q,prev_SM,obj.chosen_numSleep(prev_SM),nxt_SM,R);
@@ -163,14 +174,15 @@ classdef BaseStation < SimulationsObject
                    if (~isempty(obj.bufferList))
                        new_evnt.name='active';
                        map.eventList=push(map.eventList,new_evnt);
+                       return;
                    end
                    obj.numSleep(1)=obj.numSleep(1)-1;
                    if (obj.numSleep(1)<=0)
                        new_evnt.name='deact';
+                       obj.Q=Q_update(obj.Q,1,obj.chosen_numSleep(1),4,0);
                    else
                        new_evnt.name='idle';
                        new_evnt.time=time+conf.sleep_dur(1);
-                       obj.Q=Q_update(obj.Q,1,obj.chosen_numSleep(1),4,0);
                    end
                    map.eventList=push(map.eventList,new_evnt);
                    
@@ -184,8 +196,8 @@ classdef BaseStation < SimulationsObject
                            obj.Delay=obj.Delay+time-map.CS_List(I).spawn_time;
                        end
                        if (obj.sleepMode==1)
- %                          obj.Energy=obj.Energy+(time-obj.time_idle_start)*conf.pow_cons(2);
-                           obj.Energy=0;
+                           obj.Energy=obj.Energy+(time-obj.log.start_time(1))*conf.pow_cons(2);
+                           %obj.Energy=0;
                            obj.log.SM_time(1)=obj.log.SM_time(1)+time-obj.log.start_time(1);                           
                        end
                        
@@ -238,6 +250,7 @@ classdef BaseStation < SimulationsObject
               new_evnt.ind=obj.ind;
               map.eventList=push(map.eventList,new_evnt);
           end
+          
           
       end
               

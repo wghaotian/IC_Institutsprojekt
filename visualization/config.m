@@ -6,13 +6,13 @@ conf.deact_dur=[0,35.5e-6,.5e-3,5e-3];% Deactivation Duration for each sleep mod
 conf.act_dur=[0,35.5e-6,.5e-3,5e-3,.5]; % Activation Duration for each sleep mode
 conf.pow_cons=[109,52.3,14.3,9.51]; % Power Consumption for each sleep mode
 
-conf.num_Cos=50; % Nummer von Consumer
-conf.num_BS=4; % Nummer von Basisstationen
-conf.total_Time=1000; % total simulation time
+conf.num_Cos=10; % Nummer von Consumer
+conf.total_Time=100; % total simulation time
 conf.W_band=20E6; % Bandwidth
 conf.BS_Pow=45; %BS Tx Power (dBm)
 %conf.Base_Station_pos=[0,300;300,0;300,300;0,0];
-conf.Base_Station_pos=[250,250];
+conf.Base_Station_pos=[100,250;400,250];
+conf.num_BS=size(conf.Base_Station_pos,1);
 conf.time_eps=1e-3;
 conf.sigma_noise=-174; % Thermal noise
 conf.lamda_scale=441.305; % scale parameter

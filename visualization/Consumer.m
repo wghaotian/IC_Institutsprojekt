@@ -63,6 +63,11 @@ classdef Consumer < SimulationsObject
                  map.served_List=[map.served_List,obj.ind];
                  map.BS_List(obj.cur_BS_ind).serveList(map.BS_List(obj.cur_BS_ind).serveList==obj.ind)=[];
                  obj.leave_time=time;
+                 Broadcast_evnt.name='leave';
+                 Broadcast_evnt.type='CS';
+                 Broadcast_evnt.time=time;
+                 Broadcast_evnt.ind=obj.ind;
+                 map.eventList=push(map.eventList,Broadcast_evnt);
                  return;
              end
              obj.data_demand=obj.data_demand-(time-obj.last_obs)*obj.cur_data_rate;
