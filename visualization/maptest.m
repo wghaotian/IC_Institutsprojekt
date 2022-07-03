@@ -1,3 +1,2 @@
 %% Run to start GUI
-config;
-visualization2;
+app = visualization2;
