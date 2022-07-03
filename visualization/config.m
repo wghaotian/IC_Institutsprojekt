@@ -6,7 +6,7 @@ conf.deact_dur=[0,35.5e-6,.5e-3,5e-3];% Deactivation Duration for each sleep mod
 conf.act_dur=[0,35.5e-6,.5e-3,5e-3,.5]; % Activation Duration for each sleep mode
 conf.pow_cons=[109,52.3,14.3,9.51]; % Power Consumption for each sleep mode
 
-conf.num_Cos=100; % Nummer von Consumer
+conf.num_Cos=50; % Nummer von Consumer
 conf.num_BS=4; % Nummer von Basisstationen
 conf.total_Time=1000; % total simulation time
 conf.W_band=20E6; % Bandwidth

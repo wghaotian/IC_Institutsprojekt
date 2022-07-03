@@ -12,7 +12,15 @@ classdef Consumer < SimulationsObject
     methods
         %% Plotting function
         function plotted = plotCS(obj,axis)
-            plotted = plot(axis,obj.pos(1), obj.pos(2),'bo','MarkerSize',8);
+            global time;
+            if (time<obj.spawn_time)
+                plotted=[];
+  %              plotted = plot (axis, obj.pos(1), obj.pos(2), 'o', 'MarkerSize', 8);
+            elseif (obj.data_demand>0)
+                plotted = plot(axis,obj.pos(1), obj.pos(2),'bo','MarkerSize',8);
+            else
+                plotted = plot(axis, obj.pos(1), obj.pos(2), 'go', 'MarkerSize', 8);
+            end
         end
   %% Constructor
         function obj=Consumer(x,y,name,dmd,vx,vy,arr_t,id)
@@ -54,6 +62,7 @@ classdef Consumer < SimulationsObject
              if (obj.data_demand<0)
                  map.served_List=[map.served_List,obj.ind];
                  map.BS_List(obj.cur_BS_ind).serveList(map.BS_List(obj.cur_BS_ind).serveList==obj.ind)=[];
+                 obj.leave_time=time;
                  return;
              end
              obj.data_demand=obj.data_demand-(time-obj.last_obs)*obj.cur_data_rate;
