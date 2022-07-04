@@ -190,6 +190,8 @@ classdef visualization2_exported < matlab.apps.AppBase
             pause(3);
 %             deplotBSs(app);
 %             deplotCSs(app); 
+%             Reward(app.map.BS_List(1,1).Energy,app.map.BS_List(1,1).Delay)
+%             Reward(app.map.BS_List(2,1).Energy,app.map.BS_List(2,1).Delay)
             disp("Simulation nach " + time + "s beendet.");
             app.LastactionTextArea.Value = "Simulation nach " + time + "s beendet.";
         end
@@ -683,7 +685,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create ChooseSimulationDropDown
             app.ChooseSimulationDropDown = uidropdown(app.LeftPanel);
-            app.ChooseSimulationDropDown.Items = {'-----', '2 BS + 50 CS', 'Option 2', 'Option 3', 'Option 4'};
+            app.ChooseSimulationDropDown.Items = {'-----', '2 BS + 10 CS', 'Option 2', 'Option 3', 'Option 4'};
             app.ChooseSimulationDropDown.ItemsData = {'1', '2', '3', '4', '5'};
             app.ChooseSimulationDropDown.ValueChangedFcn = createCallbackFcn(app, @ChooseSimulationDropDownValueChanged, true);
             app.ChooseSimulationDropDown.Position = [62 553 100 22];
@@ -787,7 +789,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create EditField
             app.EditField = uieditfield(app.RightPanel, 'numeric');
-            app.EditField.ValueDisplayFormat = '%11.4g ns';
+            app.EditField.ValueDisplayFormat = '%11.4g s';
             app.EditField.Editable = 'off';
             app.EditField.Position = [107 72 88 22];
 

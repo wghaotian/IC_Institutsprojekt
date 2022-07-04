@@ -5,7 +5,7 @@ classdef BaseStation < SimulationsObject
        bufferList
        chosen_numSleep=zeros(1,4);
        numSleep=zeros(1,4);
-       Q=zeros(4,1000); % Index starts from 0!!!!!!
+       Q=zeros(4,100); % Index starts from 0!!!!!!
        Delay=-1;
        Energy=0;
        time_idle_start;
