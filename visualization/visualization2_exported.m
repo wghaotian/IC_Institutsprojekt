@@ -149,12 +149,13 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.learningedit.Value = learning;
             app.learningslider.Value = learning;
             
+%             conf
         end
         function Simu1(app)
+            global conf;
             hold(app.UIAxes,"off");
             hold(app.UIAxes,"on");
-            run('config.m');
-            global conf;
+%             app.runconf;
             app.map=Map(500,500,conf.total_Time);
             
             app.UIAxes.XLimMode = 'manual';
