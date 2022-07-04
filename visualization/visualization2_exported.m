@@ -227,6 +227,45 @@ classdef visualization2_exported < matlab.apps.AppBase
         
         function Simu2(app)
             % To be made
+            global conf;
+            hold(app.UIAxes,"off");
+            hold(app.UIAxes,"on");
+            %% Define BS and CS 
+            conf.num_Cos = 10;
+            conf.Base_Station_pos=[100,250;400,250];
+            conf.num_BS=size(conf.Base_Station_pos,1);
+            app.map=Map(500,500,conf.total_Time);
+            
+            app.UIAxes.XLimMode = 'manual';
+            app.xSize = app.map.map_size(1);
+            app.ySize = app.map.map_size(2);
+            app.UIAxes.XLim = [0,app.map.map_size(1)];
+            app.UIAxes.YLim = [0,app.map.map_size(2)];
+            
+            for I=(1:conf.num_Cos)
+                app.map=app.map.add_CS();
+            end
+            app.map=app.map.add_BS(conf.Base_Station_pos);
+
+            
+            global time;
+            time=0;
+            while ~(isempty(app.map.eventList))
+                min_evnt=app.map.eventList(1);
+                app.map.eventList=pop(app.map.eventList);
+                time=min_evnt.time;
+                app.map=app.map.simulate(min_evnt);
+                app.LastactionTextArea.Value=[broadcast(min_evnt,app.LastactionTextArea.Value(1));app.LastactionTextArea.Value];
+                pause(0.001);
+                
+                app.guisimulation(time, min_evnt.name);
+
+            
+            end
+            plotBSs(app);
+            plotCSs(app);
+            disp("Simulation nach " + time + "s beendet.");
+            app.LastactionTextArea.Value = "Simulation nach " + time + "s beendet.";
         end
         
         function Simu3(app)
