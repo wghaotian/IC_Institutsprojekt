@@ -25,23 +25,23 @@ classdef helpmenu_exported < matlab.apps.AppBase
 
             % Create UIFigure and hide until all components are created
             app.UIFigure = uifigure('Visible', 'off');
-            app.UIFigure.Position = [100 100 640 480];
+            app.UIFigure.Position = [100 100 730 607];
             app.UIFigure.Name = 'MATLAB App';
 
             % Create Image
             app.Image = uiimage(app.UIFigure);
-            app.Image.Position = [1 36 640 445];
-            app.Image.ImageSource = 'menu-doc.png';
+            app.Image.Position = [1 52 732 556];
+            app.Image.ImageSource = 'menu-doc_v2.png';
 
             % Create ffnenButton
             app.ffnenButton = uibutton(app.UIFigure, 'push');
             app.ffnenButton.ButtonPushedFcn = createCallbackFcn(app, @ffnenButtonPushed, true);
-            app.ffnenButton.Position = [120 7 100 22];
+            app.ffnenButton.Position = [119 21 99.5 22];
             app.ffnenButton.Text = 'Öffnen';
 
             % Create DokumentationLabel
             app.DokumentationLabel = uilabel(app.UIFigure);
-            app.DokumentationLabel.Position = [28 7 93 22];
+            app.DokumentationLabel.Position = [17 21 92.5 22];
             app.DokumentationLabel.Text = 'Dokumentation:';
 
             % Show the figure after all components are created
