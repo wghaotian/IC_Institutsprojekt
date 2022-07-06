@@ -83,7 +83,7 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.plottedCUList = [app.plottedCUList;app.map.CS_List(i).plotCS(app.UIAxes)];
             end
         end
-    %% Funktionen zum Deplotten und löschen aller BaseStations und Consumer
+    %% Funktionen zum Deplotten und lÃ¶schen aller BaseStations und Consumer
         function deplotBSs(app)
 %            pause(0.001);
 %             thesize = size(app.map.BS_List);
@@ -215,8 +215,8 @@ classdef visualization2_exported < matlab.apps.AppBase
             end
             value = app.ONButton.Value;
             if (value == 0)
-                disp("Simulation temporär pausiert");
-                app.LastactionTextArea.Value = "Simulation temporär pausiert";
+                disp("Simulation temporÃ¤r pausiert");
+                app.LastactionTextArea.Value = "Simulation temporÃ¤r pausiert";
                 while (app.ONButton.Value == 0)
                     pause(1);
                 end
@@ -330,7 +330,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             value = app.TestSceneDropDown.Value;
             config;
             if (app.countStart == 0)
-                app.text = "Drücke zuerst auf den Start Knopf!";
+                app.text = "DrÃ¼cke zuerst auf den Start Knopf!";
             elseif (value == '2' )
                 % Add background
                 imshow('map_background.png','Parent',app.UIAxes);
@@ -439,6 +439,10 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.placeholderLabel.Visible = 1;
                 app.EditField.Visible = 0;
                 app.SimulatedtimeLabel.Visible = 0;
+                app.numberCS.Visible = 0;
+                app.NumberofCSLabel.Visible = 0;
+                app.numberBS.Visible = 0;
+                app.NumberofBSLabel.Visible = 0;
             elseif (value == 0)
                 app.StartTestAppButton.Visible = 0;
                 app.TestSceneDropDown.Visible = 0;
@@ -446,6 +450,10 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.placeholderLabel.Visible = 0;
                 app.EditField.Visible = 1;
                 app.SimulatedtimeLabel.Visible = 1;
+                app.numberCS.Visible = 1;
+                app.NumberofCSLabel.Visible = 1;
+                app.numberBS.Visible = 1;
+                app.NumberofBSLabel.Visible = 1;
             end
         end
 
@@ -469,7 +477,7 @@ classdef visualization2_exported < matlab.apps.AppBase
                 % Das ist leider notwendig, da value kein Zahlenwert ist
                 % sondern ein char mit der Zahl eingetragen diesen Char
                 % muss ich erst in einen String umwandeln um diesen dann in
-                % eine Zahl umwandeln zu können.
+                % eine Zahl umwandeln zu kÃ¶nnen.
                 position = str2double(string(value));
                 ausgabe = "Simulation: '" + string(app.ChooseSimulationDropDown.Items{position}) + "' selected.";
             else
@@ -679,14 +687,14 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.Label = uilabel(app.LeftPanel);
             app.Label.FontSize = 7.9;
             app.Label.Position = [104 9 115 31];
-            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till Müller'};
+            app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till MÃ¼ller'};
 
             % Create Label2
             app.Label2 = uilabel(app.LeftPanel);
             app.Label2.FontSize = 8;
             app.Label2.FontWeight = 'bold';
             app.Label2.Position = [16 35 203 42];
-            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
+            app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen fÃ¼r adaptive Schlafmodi '; 'in 5G-Netzen'};
 
             % Create StartTestAppButton
             app.StartTestAppButton = uibutton(app.LeftPanel, 'push');
@@ -837,7 +845,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.placeholderLabel.FontSize = 11;
             app.placeholderLabel.Visible = 'off';
             app.placeholderLabel.Position = [10 6 309 135];
-            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. Drücke auf Start Test-App'; '2. Wähle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drücken '; '(beim Background dasselbe)'; '4. Durch erneutes Drücken auf Start Test-App cleart sich '; 'das Panel'};
+            app.placeholderLabel.Text = {'Test-Tutorial:'; '1. DrÃ¼cke auf Start Test-App'; '2. WÃ¤hle darunter folgende Optionen in der angezeigten '; 'Reihenfolge.'; '3. Du kannst auch nach dem Entfernen des Customers '; 'erneut auf Add Cu und Remove Cu drÃ¼cken '; '(beim Background dasselbe)'; '4. Durch erneutes DrÃ¼cken auf Start Test-App cleart sich '; 'das Panel'};
 
             % Create KartePanel
             app.KartePanel = uipanel(app.RightPanel);
