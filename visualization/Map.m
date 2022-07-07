@@ -22,6 +22,15 @@ classdef Map
             obj.total_Time=total_Time;
         end
         
+        function [E,D] = Gesamt_Energy_Delay(obj)
+            E=0;
+            D=0;
+            for I=1:length(obj.BS_List)
+                E=E+obj.BS_List(I).log.Energy;
+                D=D+obj.BS_List(I).log.Delay;
+            end
+        end
+        
         function obj = add_item(obj,obj1)
             if (isa(obj1,'BaseStation'))
                 obj.BS_List=[obj.BS_List;obj1];
