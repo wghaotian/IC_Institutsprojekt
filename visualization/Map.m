@@ -29,6 +29,13 @@ classdef Map
                 E=E+obj.BS_List(I).log.Energy;
                 D=D+obj.BS_List(I).log.Delay;
             end
+            global time;
+            E=E/time;
+            E=E/1000;
+            if isnan(E)
+                E=0;
+            end
+            D=D*1000;
         end
         
         function obj = add_item(obj,obj1)
@@ -119,9 +126,9 @@ classdef Map
             elseif strcmp(evnt.type,'BS')
                 [obj.BS_List(evnt.ind),obj]=obj.BS_List(evnt.ind).simulate(evnt,obj);
             else
-                if (abs(obj.last_obs-evnt.time)<conf.eps)
-                    return;
-                end
+%                 if (abs(obj.last_obs-evnt.time)<conf.time_eps)
+%                     return;
+%                 end
                 obj.last_obs=evnt.time;
                 for I=(1:length(obj.BS_List))
                     [obj.BS_List(I),obj]=obj.BS_List(I).observe(obj,evnt.time);

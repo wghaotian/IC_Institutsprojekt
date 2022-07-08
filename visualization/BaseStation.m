@@ -37,7 +37,7 @@ classdef BaseStation < SimulationsObject
         end
         %% Constructor
         function BS=BaseStation(x,y,name,Mode,id)
-            BS@SimulationsObject(x,y,name,id);
+           BS@SimulationsObject(x,y,name,id);
             BS.sleepMode=Mode;
             BS.prev_SM=Mode;
             BS.log.SM_time=[0,0,0,0]; % idle, SM1, SM2, SM3
@@ -46,6 +46,11 @@ classdef BaseStation < SimulationsObject
             BS.log.Energy=0;
             BS.log.Delay=0;
             BS.log.num_nxt_action=0;
+            global conf;
+            tau=conf.total_Time/conf.num_Cos;
+            max_num_sleep=floor(tau/min(conf.sleep_dur(:)));
+            BS.Q=zeros(4,max_num_sleep*2);
+            BS.Q=zeros(4,10);
         end
         %% Set Sleep
         function BS=setSleep(BS,SM)
@@ -221,9 +226,11 @@ classdef BaseStation < SimulationsObject
                     %% Active working state
                     
                     obj.Delay=0;
-                    for I=obj.serveList
+                    for I=obj.bufferList
                         obj.Delay=obj.Delay+time-map.CS_List(I).spawn_time;
                     end
+                    obj.serveList=[obj.serveList,obj.bufferList];
+                    obj.bufferList=[];
                     obj.log.Delay=obj.log.Delay+obj.Delay;
                     if (obj.prev_SM==1)
                         %obj.Energy=0;
