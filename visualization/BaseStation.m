@@ -247,11 +247,15 @@ classdef BaseStation < SimulationsObject
         
         %% Observation Function
         function [obj,map]=observe(obj,map,time)
-            
-            for ind=obj.serveList
+            served=[];
+            for I=1:length(obj.serveList)
+                ind=obj.serveList(I);
                 [map.CS_List(ind),map]=map.CS_List(ind).observe(map,time);
+                if map.CS_List(ind).data_demand<0
+                    served=[served,I];
+                end
             end
-            
+            obj.serveList(served)=[];
             if isempty(obj.serveList) && (obj.sleepMode==0)
                 new_evnt.name='deact';
                 new_evnt.time=time;
