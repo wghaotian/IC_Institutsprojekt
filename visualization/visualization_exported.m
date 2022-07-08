@@ -164,7 +164,7 @@ classdef visualization_exported < matlab.apps.AppBase
             conf.Base_Station_pos=[100,250;400,250];
             conf.num_BS=size(conf.Base_Station_pos,1);
             app.map=Map(500,500,conf.total_Time);
-            
+            conf.num_Cos=10;
             app.UIAxes.XLimMode = 'manual';
             app.xSize = app.map.map_size(1);
             app.ySize = app.map.map_size(2);
@@ -192,7 +192,8 @@ classdef visualization_exported < matlab.apps.AppBase
                 
                 app.guisimulation(time, min_evnt.name);
 
-                if length(app.map.served_List)==length(app.map.CS_List)
+                if length(app.map.served_List)==length(app.map.CS_List) && strcmp(min_evnt.name,'leave')
+                    app.guisimulation(time,min_evnt.name);
                     break;
                 end
             end
@@ -205,7 +206,7 @@ classdef visualization_exported < matlab.apps.AppBase
 %             Reward(app.map.BS_List(1,1).Energy,app.map.BS_List(1,1).Delay)
 %             Reward(app.map.BS_List(2,1).Energy,app.map.BS_List(2,1).Delay)
             disp("Simulation nach " + time + "s beendet.");
-            app.LastactionTextArea.Value = "Simulation nach " + time + "s beendet.";
+            app.LastactionTextArea.Value = ["Simulation nach " + time + "s beendet.";app.LastactionTextArea.Value];
         end
         
         function guisimulation(app,time,evnt_name)
@@ -244,10 +245,10 @@ classdef visualization_exported < matlab.apps.AppBase
             hold(app.UIAxes,"off");
             hold(app.UIAxes,"on");
             %% Define BS and CS 
+            conf.total_Time=100;
             conf.num_Cos = 100;
             conf.Base_Station_pos=[100,250;400,250;350,120];
             conf.num_BS=size(conf.Base_Station_pos,1);
-            conf.total_Time=100;
             app.map=Map(500,500,conf.total_Time);
             
             app.UIAxes.XLimMode = 'manual';
@@ -276,7 +277,8 @@ classdef visualization_exported < matlab.apps.AppBase
                 
                 app.guisimulation(time, min_evnt.name);
 
-                if length(app.map.served_List)==length(app.map.CS_List)
+                if length(app.map.served_List)==length(app.map.CS_List) && strcmp(min_evnt.name,'leave')
+                    app.guisimulation(time,min_evnt.name);
                     break;
                 end
             end
@@ -285,7 +287,7 @@ classdef visualization_exported < matlab.apps.AppBase
             plotBSs(app);
             plotCSs(app);
             disp("Simulation nach " + time + "s beendet.");
-            app.LastactionTextArea.Value = "Simulation nach " + time + "s beendet.";
+            app.LastactionTextArea.Value = ["Simulation nach " + time + "s beendet.";app.LastactionTextArea.Value];
         end
         
         function Simu3(app)
