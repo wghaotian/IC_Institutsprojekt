@@ -1,2 +1,2 @@
 %% Run to start GUI
-app = visualization;
+app = Copy_of_visualization;
