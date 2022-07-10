@@ -47,7 +47,9 @@ classdef BaseStation < SimulationsObject
             BS.log.Delay=0;
             BS.log.num_nxt_action=0;
             global conf;
-            BS.Q=zeros(4,length(conf.num_act));
+            tau=conf.total_Time/conf.num_Cos;
+            max_num_sleep=max(conf.num_act)*floor(tau/min(conf.sleep_dur(:)));
+            BS.Q=zeros(4,max_num_sleep*2);
 %             if conf.action_space=='s'
 %                 BS.Q=zeros(4,10);
 %             end
@@ -91,6 +93,8 @@ classdef BaseStation < SimulationsObject
                 case 'deact'
                     %% Deactivation
                     
+                    obj.Delay=-1;
+                    obj.Energy=0;
                     if (obj.prev_SM<=1||obj.sleepMode<=1) %to decide next sleep mode
                         nxt_SM=4;
                         if (obj.prev_SM==1)
@@ -104,10 +108,10 @@ classdef BaseStation < SimulationsObject
                     obj.chosen_numSleep(nxt_SM)=next_action(obj.Q, obj.prev_SM);
                     obj.log.num_nxt_action=obj.log.num_nxt_action+1;
                     obj.log.num_nxt_action=obj.log.num_nxt_action+1;
-                    obj.numSleep(nxt_SM)=act2num(obj.chosen_numSleep(nxt_SM),nxt_SM);
+                    obj.numSleep(nxt_SM)=act2num(obj.chosen_numSleep(nxt_SM),n);
                     
                     
-                    if (obj.numSleep(nxt_SM)) % Next sleep mode determined
+                    if (obj.chosen_numSleep(nxt_SM)) % Next sleep mode determined
                         new_evnt.time=time+conf.deact_dur(nxt_SM);
                         
                         if (nxt_SM==1)
@@ -119,9 +123,9 @@ classdef BaseStation < SimulationsObject
                         end
                         
                         obj.log.start_time(nxt_SM)=time;
-                        if time && obj.Delay<conf.time_eps
-                            obj.Q=Q_update(obj.Q,obj.prev_SM,obj.chosen_numSleep(obj.prev_SM),nxt_SM,0);% Total energy and delay caculated into reward or just in this period?
-                        end
+                        
+                        obj.Q=Q_update(obj.Q,obj.prev_SM,obj.chosen_numSleep(obj.prev_SM),nxt_SM,0);% Total energy and delay caculated into reward or just in this period?
+
                         
                         obj.log.start_time(nxt_SM)=time;
                         
@@ -136,8 +140,6 @@ classdef BaseStation < SimulationsObject
                     new_obs_evnt=struct('type','Map','name','Obs','time',time,'ind',0);
                     map.eventList=push(map.eventList,new_obs_evnt);
                     
-                    obj.Delay=-1;
-                    obj.Energy=0;
                 case 'sleep'
                     %% Sleep
                     if ~obj.sleepMode
@@ -178,9 +180,9 @@ classdef BaseStation < SimulationsObject
                     if (nxt_SM)% if not active
                         obj.chosen_numSleep(nxt_SM)=next_action(obj.Q,obj.sleepMode);
                         obj.log.num_nxt_action=obj.log.num_nxt_action+1;
-                        obj.numSleep(nxt_SM)=act2num(obj.chosen_numSleep(nxt_SM),nxt_SM);
+                        obj.numSleep(nxt_SM)=obj.chosen_numSleep(nxt_SM);
                         
-                        if (obj.numSleep(nxt_SM))% if chosen~=0
+                        if (obj.chosen_numSleep(nxt_SM))% if chosen~=0
                             
                             new_evnt.time=time+conf.act_dur(obj.prev_SM);
                             obj.log.SM_time(obj.prev_SM)=obj.log.SM_time(obj.prev_SM)+new_evnt.time-obj.log.start_time(obj.prev_SM);
@@ -198,7 +200,7 @@ classdef BaseStation < SimulationsObject
                             end
                         else % chosen = 0
                             new_evnt.name='act';
-                            obj.Q=Q_update(obj.Q,obj.prev_SM,obj.chosen_numSleep(obj.prev_SM),nxt_SM,0);
+                            obj.Q=Q_update(obj.Q,obj.prev_SM,0,nxt_SM,0);
                         end
                         
                     else
@@ -226,8 +228,7 @@ classdef BaseStation < SimulationsObject
                     else
                         available_SM=obj.numSleep(1);
                     end
-                    available_SM=min(available_SM,obj.numSleep(1));
-                    available_SM=max(available_SM,1);
+                    available_SM=max(available_SM,obj.numSleep(1));
                     obj.numSleep(1)=obj.numSleep(1)-available_SM;
                     obj.log.SM_num(1)=obj.log.SM_num(1)+available_SM;
                     if (obj.numSleep(1)<=0)
@@ -257,7 +258,7 @@ classdef BaseStation < SimulationsObject
                     end
 
                     R=Reward(obj.Energy,obj.Delay);
-                    obj.Q=Q_update(obj.Q,obj.prev_SM,obj.chosen_numSleep(max(1,obj.prev_SM)),1,R);
+                    obj.Q=Q_update(obj.Q,obj.prev_SM,obj.chosen_numSleep(max(1,obj.sleepMode)),1,R);
                     obj.sleepMode=0;
                     
                     obj.prev_SM=0;

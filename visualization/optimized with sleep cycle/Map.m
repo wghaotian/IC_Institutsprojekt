@@ -76,6 +76,7 @@ classdef Map
             y=rand()*obj.map_size(2);
             nameCS=['CS ',num2str(size(obj.CS_List,2)+1)];
             global conf;
+            conf.tau=conf.total_Time/conf.num_Cos;
             %arr_t=lognrnd(conf.lamda_arr,conf.nu);
             arr_t=rand*obj.total_Time;
             data=wblrnd(conf.lamda_scale,conf.k_shape)*1048576;
@@ -133,6 +134,7 @@ classdef Map
                     obj.flag=true;
                 end
                 if obj.flag
+                    obj.flag=false;
                     for I=(1:length(obj.BS_List))
                         [obj.BS_List(I),obj]=obj.BS_List(I).observe(obj,evnt.time);
                     end
