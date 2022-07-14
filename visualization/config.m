@@ -13,7 +13,7 @@ conf.BS_Pow=45; %BS Tx Power (dBm)
 %conf.Base_Station_pos=[0,300;300,0;300,300;0,0];
 conf.Base_Station_pos=[100,250;400,250];
 conf.num_BS=size(conf.Base_Station_pos,1);
-conf.time_eps=1e-3;
+conf.time_eps=1e-6;
 conf.sigma_noise=-174; % Thermal noise
 conf.lamda_scale=441.305; % scale parameter
 conf.k_shape=0.8; % shape parameter
@@ -23,3 +23,6 @@ conf.gamma=0.9; % Discount factor
 conf.alpha=0.9; %　Learning rate
 conf.lamda_arr=1;
 conf.nu=1/10;
+
+conf.num_act=[0.01:0.01:0.09,0.1:0.1:0.9,1:1:10];
+conf.action_space='b';%b:big, s:small(limited to 10 for each state)

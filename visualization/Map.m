@@ -8,8 +8,10 @@ classdef Map
 %         BS_eventList=[] % Basestation Event List
 %         CS_eventList=[] % Consumer Event List
         eventList=[] % Event List
+        unservedList=[] %unservedUserList
         served_List % Served Consumer List
         last_obs=0;
+        flag=0;%To judge whether anything has changed from last_obs if last_obs==time
     end
     
     methods
@@ -55,6 +57,7 @@ classdef Map
                 evnt.name='deact';
                 evnt.ind=I;
                 evnt.type='BS';
+                evnt.last_evnt=evnt;
                 obj.eventList=push(obj.eventList,evnt);
             end
         end
@@ -74,6 +77,7 @@ classdef Map
             y=rand()*obj.map_size(2);
             nameCS=['CS ',num2str(size(obj.CS_List,2)+1)];
             global conf;
+            conf.tau=conf.total_Time/conf.num_Cos;
             %arr_t=lognrnd(conf.lamda_arr,conf.nu);
             arr_t=rand*obj.total_Time;
             data=wblrnd(conf.lamda_scale,conf.k_shape)*1048576;
@@ -82,7 +86,9 @@ classdef Map
             evnt.type='CS';
             evnt.ind=size(obj.CS_List,1)+1;
             CS=Consumer(x,y,nameCS,data,0,0,arr_t,evnt.ind);
+            evnt.last_evnt=evnt;
             obj.eventList=push(obj.eventList,evnt);
+            obj.unservedList=push(obj.unservedList,evnt);
             obj=obj.add_item(CS);
         end
         
@@ -126,13 +132,20 @@ classdef Map
             elseif strcmp(evnt.type,'BS')
                 [obj.BS_List(evnt.ind),obj]=obj.BS_List(evnt.ind).simulate(evnt,obj);
             else
-%                 if (abs(obj.last_obs-evnt.time)<conf.time_eps)
-%                     return;
-%                 end
-                obj.last_obs=evnt.time;
+%                if (abs(obj.last_obs-evnt.time)>conf.time_eps)
+%                    obj.flag=true;
+%                end
+                obj.flag=false;
                 for I=(1:length(obj.BS_List))
-                    [obj.BS_List(I),obj]=obj.BS_List(I).observe(obj,evnt.time);
+                    [obj.BS_List(I),obj]=obj.BS_List(I).observe(obj,evnt.time,evnt);
                 end
+                
+                if ~obj.flag
+                    while(~isempty(obj.eventList)&&obj.eventList(1).type(1)=='M'&&obj.eventList(1).time-evnt.time<conf.time_eps)
+                        obj.eventList=pop(obj.eventList);
+                    end
+                end
+                obj.last_obs=evnt.time;
             end
         end
         
