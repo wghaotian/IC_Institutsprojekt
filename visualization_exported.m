@@ -1,4 +1,4 @@
-classdef visualization2_exported < matlab.apps.AppBase
+classdef visualization_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
@@ -31,6 +31,10 @@ classdef visualization2_exported < matlab.apps.AppBase
         learningedit                   matlab.ui.control.NumericEditField
         learningslider                 matlab.ui.control.Slider
         LearningrateLabel              matlab.ui.control.Label
+        EnergiegewinnzeitnormalisiertkWEditFieldLabel  matlab.ui.control.Label
+        EnergiegewinnzeitnormalisiertkWEditField  matlab.ui.control.NumericEditField
+        QValuesspeichernCheckBox       matlab.ui.control.CheckBox
+        QValuesausletzterSimulationCheckBox  matlab.ui.control.CheckBox
         RightPanel                     matlab.ui.container.Panel
         SimulatedtimeLabel             matlab.ui.control.Label
         LastactionTextAreaLabel        matlab.ui.control.Label
@@ -43,6 +47,8 @@ classdef visualization2_exported < matlab.apps.AppBase
         numberBS                       matlab.ui.control.NumericEditField
         NumberofCSLabel                matlab.ui.control.Label
         numberCS                       matlab.ui.control.NumericEditField
+        GesamtverzgerungmsLabel        matlab.ui.control.Label
+        GesamtverzoegerungEditField    matlab.ui.control.NumericEditField
     end
 
     % Properties that correspond to apps with auto-reflow
@@ -64,27 +70,29 @@ classdef visualization2_exported < matlab.apps.AppBase
         plottedBSList;
         xSize = 0;
         ySize = 0;
+        test;
+        Q;
     end
     
     %% Funktionen zum Plotten aller BaseStations und Consumer
     methods (Access = public)
         function plotBSs(app)
-            size = length(app.map.BS_List);
-            for i = 1:size
+            num_BS = length(app.map.BS_List);
+            for i = 1:num_BS
                 app.plottedBSs = app.plottedBSs + 1;
-                app.plottedBSList = [app.plottedBSList app.map.BS_List(i).plotBS(app.UIAxes,app)];
+                app.plottedBSList = [app.plottedBSList;app.map.BS_List(i).plotBS(app.UIAxes,app)];
             end         
         end
         function plotCSs(app)
             size = length(app.map.CS_List);
             for i = 1:size
                 app.plottedCUs = app.plottedCUs + 1;
-                app.plottedCUList = [app.plottedCUList app.map.CS_List(i).plotCS(app.UIAxes)];
+                app.plottedCUList = [app.plottedCUList;app.map.CS_List(i).plotCS(app.UIAxes)];
             end
         end
     %% Funktionen zum Deplotten und löschen aller BaseStations und Consumer
         function deplotBSs(app)
-             pause(0.001);
+%            pause(0.001);
 %             thesize = size(app.map.BS_List);
 %             for i = (1:thesize(1))
 %                 ende = thesize(1)-i+1;
@@ -100,34 +108,26 @@ classdef visualization2_exported < matlab.apps.AppBase
 %             end
 %              delete(app.plottedBSList);
 %              app.plottedBSList
-            i = length(app.map.BS_List);
-            while (i > 0)
-                if(i>1)
-                    delete(app.plottedBSList(i));
-%                     app.plottedCUList = app.plottedCUList(i,:);
-                else
-                    delete(app.plottedBSList);
-                    app.plottedBSList = [];
-                end
-                i = i-1;
-%                 app.plottedCSs = app.plottedCSs - 1;
-            end
+            delete(app.plottedBSList);
+            app.plottedBSList=[];
             app.plottedBSs = 0;
         end
         function deplotCSs(app)
-            pause(0.001);
-            i = length(app.map.CS_List);
-            while (i > 0)
-                if(i>1)
-                    delete(app.plottedCUList(i));
-%                     app.plottedCUList = app.plottedCUList(i,:);
-                else
-                    delete(app.plottedCUList);
-                    app.plottedCUList = [];
-                end
-                i = i-1;
-%                 app.plottedCSs = app.plottedCSs - 1;
-            end
+%            pause(0.001);
+%             while (i > 0)
+%                 if(i>1)
+%                     delete(app.plottedCUList(i));
+% %                     app.plottedCUList = app.plottedCUList(i,:);
+%                 else
+%                     delete(app.plottedCUList);
+%                     app.plottedCUList = [];
+%                 end
+%                 i = i-1;
+% %                 app.plottedCSs = app.plottedCSs - 1;
+%             end
+            delete(app.plottedCUList);
+            app.plottedCUList=[];
+            app.plottedCUs=0;
 %             for i = 1:length(app.map.CS_List)
 %             delete(app.plottedCUList(length(app.map.CS_List)-i+1));
 %             app.plottedCUList = app.plottedCUList([1:app.plottedCUs-1,min(length(app.plottedCUs),app.plottedCUs+1):end]);
@@ -135,11 +135,11 @@ classdef visualization2_exported < matlab.apps.AppBase
 %             app.plottedCUs = app.plottedCUs - 1;
 %             end
 %             delete(app.plottedCUList);
-            pause(0.001);
-            app.plottedBSs = 0;
+%            pause(0.001);
         end
         function runconf(app)
             config;
+            global conf;
             epsilon = conf.eps;
             app.epsilonedit.Value = epsilon;
             app.epsilonSlider.Value = epsilon;
@@ -156,11 +156,123 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.learningedit.Value = learning;
             app.learningslider.Value = learning;
             
+%             conf
         end
-        function newmain(app)
-            
-            run('config.m');
+        function saveQ(app)
+            if ~app.QValuesspeichernCheckBox.Value
+                return;
+            end
+            for I=2:length(app.map.BS_List)
+                app.Q(:,:,I)=app.map.BS_List(I).Q;
+            end
+        end
+        function getQ(app)
+            if ~app.QValuesausletzterSimulationCheckBox.Value
+                return;
+            end
+            if (size(app.Q,3)==length(app.map.BS_List))
+                for I=1:length(app.map.BS_List)
+                    app.map.BS_List(I).Q=app.Q(:,:,I);
+                end
+            else
+                disp('Failed to get last Q Values');
+            end
+        end
+        function Simu1(app)
             global conf;
+            hold(app.UIAxes,"off");
+            hold(app.UIAxes,"on");
+%             app.runconf;
+            conf.total_Time=30;
+            conf.Base_Station_pos=[100,250;400,250];
+            conf.num_BS=size(conf.Base_Station_pos,1);
+            app.map=Map(500,500,conf.total_Time);
+            conf.num_Cos=10;
+            app.UIAxes.XLimMode = 'manual';
+            app.xSize = app.map.map_size(1);
+            app.ySize = app.map.map_size(2);
+            app.UIAxes.XLim = [0,app.map.map_size(1)];
+            app.UIAxes.YLim = [0,app.map.map_size(2)];
+            
+            for I=(1:conf.num_Cos)
+                app.map=app.map.add_CS();
+            end
+            app.map=app.map.add_BS(conf.Base_Station_pos);
+            app.getQ;
+            
+            global time;
+            time=0;
+            while ~(isempty(app.map.eventList))
+                min_evnt=app.map.eventList(1);
+                app.map.eventList=pop(app.map.eventList);
+                time=min_evnt.time;
+                app.map=app.map.simulate(min_evnt);
+                app.LastactionTextArea.Value=[broadcast(min_evnt,app.LastactionTextArea.Value(1));app.LastactionTextArea.Value];
+                %app.LastactionTextArea.Value(6:end)=[];
+                pause(0.000001);
+                
+                [app.EnergiegewinnzeitnormalisiertkWEditField.Value,app.GesamtverzoegerungEditField.Value]=app.map.Gesamt_Energy_Delay;
+                
+                app.guisimulation(time, min_evnt.name);
+
+                if length(app.map.served_List)==length(app.map.CS_List) && strcmp(min_evnt.name,'leave')
+                    app.guisimulation(time,min_evnt.name);
+                    break;
+                end
+            end
+            deplotBSs(app);
+            deplotCSs(app); 
+            plotBSs(app);
+            plotCSs(app);
+%             deplotBSs(app);
+%             deplotCSs(app); 
+%             Reward(app.map.BS_List(1,1).Energy,app.map.BS_List(1,1).Delay)
+%             Reward(app.map.BS_List(2,1).Energy,app.map.BS_List(2,1).Delay)
+            disp("Simulation nach " + time + "s beendet.");
+            app.LastactionTextArea.Value = ["Simulation nach " + time + "s beendet.";app.LastactionTextArea.Value];
+            app.saveQ;
+        end
+        
+        function guisimulation(app,time,evnt_name)
+            app.EditField.Value = time;
+            app.numberCS.Value = length(app.map.CS_List);
+            app.numberBS.Value = length(app.map.BS_List);
+            
+%            if(time>app.nextplottime)
+                %% Zu Testzwecken werden (erstmal alle Plots entfernt und neu erstellt)
+%                 if (~(~isempty(app.map.CS_List)))
+%                    deplotCSs(app);
+%                 end
+            [app.EnergiegewinnzeitnormalisiertkWEditField.Value,app.GesamtverzoegerungEditField.Value]=app.map.Gesamt_Energy_Delay;
+            if ~(strcmp(evnt_name,'sleep')||strcmp(evnt_name,'idle')||strcmp(evnt_name,'Obs'))
+                deplotCSs(app);
+                deplotBSs(app);
+                plotBSs(app);
+                plotCSs(app);
+  %              app.nextplottime = time + 10;
+            end
+            value = app.ONButton.Value;
+            if (value == 0)
+                disp("Simulation temporär pausiert");
+                app.LastactionTextArea.Value = "Simulation temporär pausiert";
+                while (app.ONButton.Value == 0)
+                    pause(0.00001);
+                end
+                disp("Simulation fortgesetzt.");
+                app.LastactionTextArea.Value = "Simulation fortgesetzt.";
+            end
+        end
+        
+        function Simu2(app)
+            % To be made
+            global conf;
+            hold(app.UIAxes,"off");
+            hold(app.UIAxes,"on");
+            %% Define BS and CS 
+            conf.total_Time=100;
+            conf.num_Cos = 100;
+            conf.Base_Station_pos=[100,250;400,250;350,120];
+            conf.num_BS=size(conf.Base_Station_pos,1);
             app.map=Map(500,500,conf.total_Time);
             
             app.UIAxes.XLimMode = 'manual';
@@ -174,8 +286,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             end
             app.map=app.map.add_BS(conf.Base_Station_pos);
             
-            CS_spawn_List=app.map.sort_CS_spawn();
-            
+            app.getQ;
             
             global time;
             time=0;
@@ -184,44 +295,33 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.map.eventList=pop(app.map.eventList);
                 time=min_evnt.time;
                 app.map=app.map.simulate(min_evnt);
-                pause(0.001);
-                app.guisimulation(time);
-            
+                app.LastactionTextArea.Value=[broadcast(min_evnt,app.LastactionTextArea.Value(1));app.LastactionTextArea.Value];
+                pause(0.00001);
+                
+                [app.EnergiegewinnzeitnormalisiertkWEditField.Value,app.GesamtverzoegerungEditField.Value]=app.map.Gesamt_Energy_Delay;
+                
+                app.guisimulation(time, min_evnt.name);
+
+                if length(app.map.served_List)==length(app.map.CS_List) && strcmp(min_evnt.name,'leave')
+                    app.guisimulation(time,min_evnt.name);
+                    break;
+                end
             end
+            deplotBSs(app);
+            deplotCSs(app); 
             plotBSs(app);
             plotCSs(app);
-            pause(3);
-%             deplotBSs(app);
-%             deplotCSs(app); 
-            disp("Simulation nach " + time + "ms beendet.");
-            app.LastactionTextArea.Value = "Simulation nach " + time + "ms beendet.";
+            disp("Simulation nach " + time + "s beendet.");
+            app.LastactionTextArea.Value = ["Simulation nach " + time + "s beendet.";app.LastactionTextArea.Value];
+            app.saveQ;
         end
         
-        function guisimulation(app,time)
-            app.EditField.Value = time;
-            app.numberCS.Value = length(app.map.CS_List);
-            app.numberBS.Value = length(app.map.BS_List);
-            
-            if(time>app.nextplottime)
-                %% Zu Testzwecken werden (erstmal alle Plots entfernt und neu erstellt)
-                if (~(~isempty(app.map.CS_List)))
-                   deplotCSs(app);
-                end
-                deplotBSs(app);
-                plotBSs(app);
-                plotCSs(app);
-                app.nextplottime = app.nextplottime + 30;
-            end
-            value = app.ONButton.Value;
-            if (value == 0)
-                disp("Simulation temporär pausiert");
-                app.LastactionTextArea.Value = "Simulation temporär pausiert";
-                while (app.ONButton.Value == 0)
-                    pause(1);
-                end
-                disp("Simulation fortgesetzt.");
-                app.LastactionTextArea.Value = "Simulation fortgesetzt.";
-            end
+        function Simu3(app)
+            % To be made
+        end
+        
+        function Simu4(app)
+            % To be made
         end
     end
 %     % Value changed function: DropDown
@@ -387,6 +487,10 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.placeholderLabel.Visible = 1;
                 app.EditField.Visible = 0;
                 app.SimulatedtimeLabel.Visible = 0;
+                app.numberCS.Visible = 0;
+                app.NumberofCSLabel.Visible = 0;
+                app.numberBS.Visible = 0;
+                app.NumberofBSLabel.Visible = 0;
             elseif (value == 0)
                 app.StartTestAppButton.Visible = 0;
                 app.TestSceneDropDown.Visible = 0;
@@ -394,6 +498,10 @@ classdef visualization2_exported < matlab.apps.AppBase
                 app.placeholderLabel.Visible = 0;
                 app.EditField.Visible = 1;
                 app.SimulatedtimeLabel.Visible = 1;
+                app.numberCS.Visible = 1;
+                app.NumberofCSLabel.Visible = 1;
+                app.numberBS.Visible = 1;
+                app.NumberofBSLabel.Visible = 1;
             end
         end
 
@@ -413,8 +521,13 @@ classdef visualization2_exported < matlab.apps.AppBase
         function ChooseSimulationDropDownValueChanged(app, event)
             value = app.ChooseSimulationDropDown.Value;
             ausgabe = ""; %#ok<NASGU> 
-            if value ~= "-----"
-                ausgabe = "Simulation: '" + value + "' selected.";
+            if value ~= 1
+                % Das ist leider notwendig, da value kein Zahlenwert ist
+                % sondern ein char mit der Zahl eingetragen diesen Char
+                % muss ich erst in einen String umwandeln um diesen dann in
+                % eine Zahl umwandeln zu können.
+                position = str2double(string(value));
+                ausgabe = "Simulation: '" + string(app.ChooseSimulationDropDown.Items{position}) + "' selected.";
             else
                 ausgabe = "No Simulation selected.";
             end
@@ -427,17 +540,43 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Button pushed function: StartselectedSimulationButton
         function StartselectedSimulationButtonPushed(app, event)
-            if (app.countStart ~= 0)
-                f = cla(app.gx,'reset');
+            app.nextplottime=0;
+            if (app.countStart ~= 0)            
+                app.deplotBSs;
+                app.deplotCSs;
+                f = cla(app.UIAxes,'reset');
                 f.Children;
+                app.UIAxes.XLimMode = 'manual';
+                
+                app.xSize = app.map.map_size(1);
+                app.ySize = app.map.map_size(2);
+                app.UIAxes.XLim = [0,app.map.map_size(1)];
+                app.UIAxes.YLim = [0,app.map.map_size(2)];
+            
                 disp("Panel cleared");
                 app.LastactionTextArea.Value = "Panel cleared";
             end
-            app.gx = app.UIAxes;
-            hold(app.gx,'on')
+            app.gx=app.UIAxes;
+            hold(app.UIAxes,'on')
             app.countStart = app.countStart +1 ;
 %             main(app);
-            app.newmain;
+%             app.newmain;
+            position = str2double(string(app.ChooseSimulationDropDown.Value));
+            switch position
+                case 1
+                    % Does nothing
+                case 2
+                    app.Simu1;
+                case 3
+                    % Does not exist (yet)
+                     app.Simu2;
+                case 4
+                    % Does not exist (yet)
+%                     app.Simu3;
+                case 5
+                    % Does not exist (yet)
+%                     app.Simu4;
+            end
         end
 
         % Button pushed function: HilfeButton
@@ -447,6 +586,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: epsilonedit
         function epsiloneditValueChanged(app, event)
+            global conf;
             value = app.epsilonedit.Value;
             app.epsilonSlider.Value = value;
             conf.eps = value;
@@ -454,6 +594,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: epsilonSlider
         function epsilonSliderValueChanged(app, event)
+            global conf;
             value = app.epsilonSlider.Value;
             app.epsilonedit.Value = value;
             conf.eps = value;
@@ -461,6 +602,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: rewardslider
         function rewardsliderValueChanged(app, event)
+            global conf;
             value = app.rewardslider.Value;
             app.rewardedit.Value = value;
             conf.eta = value;
@@ -468,6 +610,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: rewardedit
         function rewardeditValueChanged(app, event)
+            global conf;
             value = app.rewardedit.Value;
             app.rewardslider.Value = value;
             conf.eta = value;
@@ -475,6 +618,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: discountslider
         function discountsliderValueChanged(app, event)
+            global conf;
             value = app.discountslider.Value;
             app.discountedit.Value = value;
             conf.gamma = value;
@@ -482,6 +626,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: discountedit
         function discounteditValueChanged(app, event)
+            global conf;
             value = app.discountedit.Value;
             app.discountslider.Value = value;
             conf.gamma = value;
@@ -489,6 +634,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: learningslider
         function learningsliderValueChanged(app, event)
+            global conf;
             value = app.learningslider.Value;
             app.learningedit.Value = value;
             conf.alpha = value;
@@ -496,6 +642,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
         % Value changed function: learningedit
         function learningeditValueChanged(app, event)
+            global conf;
             value = app.learningedit.Value;
             app.learningslider.Value = value;
             conf.alpha = value;
@@ -562,7 +709,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.TestSceneDropDownLabel = uilabel(app.LeftPanel);
             app.TestSceneDropDownLabel.HorizontalAlignment = 'right';
             app.TestSceneDropDownLabel.Visible = 'off';
-            app.TestSceneDropDownLabel.Position = [23 111 69 22];
+            app.TestSceneDropDownLabel.Position = [22 109 69 22];
             app.TestSceneDropDownLabel.Text = 'Test-Scene:';
 
             % Create TestSceneDropDown
@@ -571,7 +718,7 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.TestSceneDropDown.ItemsData = {'1', '2', '3', '4', '8', '5', '6', '7'};
             app.TestSceneDropDown.ValueChangedFcn = createCallbackFcn(app, @TestSceneDropDownValueChanged, true);
             app.TestSceneDropDown.Visible = 'off';
-            app.TestSceneDropDown.Position = [107 111 100 22];
+            app.TestSceneDropDown.Position = [106 109 100 22];
             app.TestSceneDropDown.Value = '1';
 
             % Create StopResumeSimulationSwitchLabel
@@ -582,34 +729,34 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create Image
             app.Image = uiimage(app.LeftPanel);
-            app.Image.Position = [10 14 95 27];
+            app.Image.Position = [9 12 95 27];
             app.Image.ImageSource = 'ic-institute.png';
 
             % Create Label
             app.Label = uilabel(app.LeftPanel);
             app.Label.FontSize = 7.9;
-            app.Label.Position = [105 11 115 31];
+            app.Label.Position = [104 9 115 31];
             app.Label.Text = {'Andrej Fadin, Haotian Wang, '; 'Huiying Zhang, Marc Wagels, '; 'Oliver Schirrmacher, Till Müller'};
 
             % Create Label2
             app.Label2 = uilabel(app.LeftPanel);
             app.Label2.FontSize = 8;
             app.Label2.FontWeight = 'bold';
-            app.Label2.Position = [17 37 203 42];
+            app.Label2.Position = [16 35 203 42];
             app.Label2.Text = {'Institutsprojekt: '; 'Maschinelles Lernen in der Kommunikationstechnik '; 'und Verteilte Algorithmen für adaptive Schlafmodi '; 'in 5G-Netzen'};
 
             % Create StartTestAppButton
             app.StartTestAppButton = uibutton(app.LeftPanel, 'push');
             app.StartTestAppButton.ButtonPushedFcn = createCallbackFcn(app, @StartTestAppButtonPushed, true);
             app.StartTestAppButton.Visible = 'off';
-            app.StartTestAppButton.Position = [62 140 100 22];
+            app.StartTestAppButton.Position = [61 138 100 22];
             app.StartTestAppButton.Text = 'Start Test-App';
 
             % Create ShowTestsCheckBox
             app.ShowTestsCheckBox = uicheckbox(app.LeftPanel);
             app.ShowTestsCheckBox.ValueChangedFcn = createCallbackFcn(app, @ShowTestsCheckBoxValueChanged, true);
             app.ShowTestsCheckBox.Text = 'Show Tests?';
-            app.ShowTestsCheckBox.Position = [16 82 90 22];
+            app.ShowTestsCheckBox.Position = [15 80 90 22];
 
             % Create ONButton
             app.ONButton = uibutton(app.LeftPanel, 'state');
@@ -634,17 +781,18 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create ChooseSimulationDropDown
             app.ChooseSimulationDropDown = uidropdown(app.LeftPanel);
-            app.ChooseSimulationDropDown.Items = {'-----', 'Main', 'Option 2', 'Option 3', 'Option 4'};
+            app.ChooseSimulationDropDown.Items = {'-----', '2 BS + 10 CS', '3 BS + 100 CS', 'Option 3', 'Option 4'};
+            app.ChooseSimulationDropDown.ItemsData = {'1', '2', '3', '4', '5'};
             app.ChooseSimulationDropDown.ValueChangedFcn = createCallbackFcn(app, @ChooseSimulationDropDownValueChanged, true);
             app.ChooseSimulationDropDown.Position = [62 553 100 22];
-            app.ChooseSimulationDropDown.Value = '-----';
+            app.ChooseSimulationDropDown.Value = '1';
 
             % Create HilfeButton
             app.HilfeButton = uibutton(app.LeftPanel, 'push');
             app.HilfeButton.ButtonPushedFcn = createCallbackFcn(app, @HilfeButtonPushed, true);
             app.HilfeButton.Icon = 'help-icon.png';
             app.HilfeButton.IconAlignment = 'right';
-            app.HilfeButton.Position = [143 83 64 22];
+            app.HilfeButton.Position = [142 81 64 22];
             app.HilfeButton.Text = 'Hilfe';
 
             % Create epsilonSlider
@@ -715,6 +863,27 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.LearningrateLabel.Position = [30 315 76 22];
             app.LearningrateLabel.Text = 'Learning rate';
 
+            % Create EnergiegewinnzeitnormalisiertkWEditFieldLabel
+            app.EnergiegewinnzeitnormalisiertkWEditFieldLabel = uilabel(app.LeftPanel);
+            app.EnergiegewinnzeitnormalisiertkWEditFieldLabel.HorizontalAlignment = 'right';
+            app.EnergiegewinnzeitnormalisiertkWEditFieldLabel.Position = [15 249 202 22];
+            app.EnergiegewinnzeitnormalisiertkWEditFieldLabel.Text = 'Energiegewinn (zeit normalisiert)/kW';
+
+            % Create EnergiegewinnzeitnormalisiertkWEditField
+            app.EnergiegewinnzeitnormalisiertkWEditField = uieditfield(app.LeftPanel, 'numeric');
+            app.EnergiegewinnzeitnormalisiertkWEditField.Editable = 'off';
+            app.EnergiegewinnzeitnormalisiertkWEditField.Position = [67 228 100 22];
+
+            % Create QValuesspeichernCheckBox
+            app.QValuesspeichernCheckBox = uicheckbox(app.LeftPanel);
+            app.QValuesspeichernCheckBox.Text = 'Q-Values speichern?';
+            app.QValuesspeichernCheckBox.Position = [15 109 133 22];
+
+            % Create QValuesausletzterSimulationCheckBox
+            app.QValuesausletzterSimulationCheckBox = uicheckbox(app.LeftPanel);
+            app.QValuesausletzterSimulationCheckBox.Text = 'Q-Values aus letzter Simulation';
+            app.QValuesausletzterSimulationCheckBox.Position = [15 138 190 22];
+
             % Create RightPanel
             app.RightPanel = uipanel(app.GridLayout);
             app.RightPanel.Layout.Row = 1;
@@ -737,7 +906,7 @@ classdef visualization2_exported < matlab.apps.AppBase
 
             % Create EditField
             app.EditField = uieditfield(app.RightPanel, 'numeric');
-            app.EditField.ValueDisplayFormat = '%11.4g ns';
+            app.EditField.ValueDisplayFormat = '%11.4g s';
             app.EditField.Editable = 'off';
             app.EditField.Position = [107 72 88 22];
 
@@ -786,6 +955,18 @@ classdef visualization2_exported < matlab.apps.AppBase
             app.numberCS.Editable = 'off';
             app.numberCS.Position = [132 14 88 22];
 
+            % Create GesamtverzgerungmsLabel
+            app.GesamtverzgerungmsLabel = uilabel(app.UIFigure);
+            app.GesamtverzgerungmsLabel.HorizontalAlignment = 'right';
+            app.GesamtverzgerungmsLabel.FontSize = 10;
+            app.GesamtverzgerungmsLabel.Position = [55 207 112 22];
+            app.GesamtverzgerungmsLabel.Text = 'Gesamtverzögerung/ms';
+
+            % Create GesamtverzoegerungEditField
+            app.GesamtverzoegerungEditField = uieditfield(app.UIFigure, 'numeric');
+            app.GesamtverzoegerungEditField.Editable = 'off';
+            app.GesamtverzoegerungEditField.Position = [65 186 100 22];
+
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
         end
@@ -795,7 +976,7 @@ classdef visualization2_exported < matlab.apps.AppBase
     methods (Access = public)
 
         % Construct app
-        function app = visualization2_exported
+        function app = visualization_exported
 
             % Create UIFigure and components
             createComponents(app)

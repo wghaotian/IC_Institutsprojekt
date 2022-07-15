@@ -1,13 +1,17 @@
 classdef Map
     
     properties
-        BS_List % Base Station List
-        CS_List % Consumer List
+        BS_List = struct;% Base Station List
+        CS_List = struct; % Consumer List
         map_size % [x,y] Map Size
         total_Time % total time 
 %         BS_eventList=[] % Basestation Event List
 %         CS_eventList=[] % Consumer Event List
         eventList=[] % Event List
+        unservedList=[] %unservedUserList
+        served_List % Served Consumer List
+        last_obs=0;
+        flag=0;%To judge whether anything has changed from last_obs if last_obs==time
     end
     
     methods
@@ -15,8 +19,25 @@ classdef Map
             %Map Construct an instance of this class
             obj.BS_List=BaseStation.empty;
             obj.CS_List=Consumer.empty;
+            obj.served_List=[];
             obj.map_size=[x,y];
             obj.total_Time=total_Time;
+        end
+        
+        function [E,D] = Gesamt_Energy_Delay(obj)
+            E=0;
+            D=0;
+            for I=1:length(obj.BS_List)
+                E=E+obj.BS_List(I).log.Energy;
+                D=D+obj.BS_List(I).log.Delay;
+            end
+            global time;
+            E=E/time;
+            E=E/1000;
+            if isnan(E)
+                E=0;
+            end
+            D=D*1000;
         end
         
         function obj = add_item(obj,obj1)
@@ -54,8 +75,10 @@ classdef Map
             x=rand()*obj.map_size(1);
             y=rand()*obj.map_size(2);
             nameCS=['CS ',num2str(size(obj.CS_List,2)+1)];
-            arr_t=rand()*obj.total_Time; % to be fixed
             global conf;
+            conf.tau=conf.total_Time/conf.num_Cos;
+            %arr_t=lognrnd(conf.lamda_arr,conf.nu);
+            arr_t=rand*obj.total_Time;
             data=wblrnd(conf.lamda_scale,conf.k_shape)*1048576;
             evnt.time=arr_t;
             evnt.name='arrive';
@@ -63,6 +86,7 @@ classdef Map
             evnt.ind=size(obj.CS_List,1)+1;
             CS=Consumer(x,y,nameCS,data,0,0,arr_t,evnt.ind);
             obj.eventList=push(obj.eventList,evnt);
+            obj.unservedList=push(obj.unservedList,evnt);
             obj=obj.add_item(CS);
         end
         
@@ -100,11 +124,29 @@ classdef Map
         end
         
         function obj=simulate(obj,evnt)
+            global conf;
             if strcmp(evnt.type,'CS')
                 [obj.CS_List(evnt.ind),obj]=obj.CS_List(evnt.ind).simulate(evnt,obj);
-            else
+            elseif strcmp(evnt.type,'BS')
                 [obj.BS_List(evnt.ind),obj]=obj.BS_List(evnt.ind).simulate(evnt,obj);
+            else
+                if (abs(obj.last_obs-evnt.time)>conf.time_eps)
+                    obj.flag=true;
+                end
+                if obj.flag
+                    obj.flag=false;
+                    for I=(1:length(obj.BS_List))
+                        [obj.BS_List(I),obj]=obj.BS_List(I).observe(obj,evnt.time);
+                    end
+                end
+                obj.last_obs=evnt.time;
             end
+        end
+        
+          %% Plotting function    
+        function plotCU(obj,axis)
+            xy = obj.pos;
+            plot(axis,xy(1), xy(2),'bo','MarkerSize',8);
         end
         
     end

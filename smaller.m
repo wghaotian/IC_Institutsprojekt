@@ -1,17 +1,15 @@
 function [ret] = smaller(event1,event2)
     if (event1.time~=event2.time)
         ret=event1.time<event2.time;
-    elseif event2.type(1)=='C'
-        ret=event1.type(1)=='C';
-    elseif event1.type(1)=='C'
-        ret=true;
     else
-        if (strcmp(event1.name,'active'))
-            ret=true;
-        elseif (strcmp(event2.name,'active'))
-            ret=false;
+        priority=zeros(128);
+        priority('M')=1;
+        priority('B')=2;
+        priority('C')=3;
+        if (event1.type(1)~=event2.type(1))
+            ret=priority(event1.type(1))>priority(event2.type(1));
         else
-            ret=rand>0.5;
+            ret=event1.ind<event2.ind;
         end
     end
     
