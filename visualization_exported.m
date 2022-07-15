@@ -491,6 +491,8 @@ classdef visualization_exported < matlab.apps.AppBase
                 app.NumberofCSLabel.Visible = 0;
                 app.numberBS.Visible = 0;
                 app.NumberofBSLabel.Visible = 0;
+                app.QValuesspeichernCheckBox.Visible = 0;
+                app.QValuesausletzterSimulationCheckBox.Visible = 0;
             elseif (value == 0)
                 app.StartTestAppButton.Visible = 0;
                 app.TestSceneDropDown.Visible = 0;
@@ -502,6 +504,8 @@ classdef visualization_exported < matlab.apps.AppBase
                 app.NumberofCSLabel.Visible = 1;
                 app.numberBS.Visible = 1;
                 app.NumberofBSLabel.Visible = 1;
+                app.QValuesspeichernCheckBox.Visible = 1;
+                app.QValuesausletzterSimulationCheckBox.Visible = 1;
             end
         end
 
